@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #F0E4D3;
+    --color-secondary: #DCC5B2;
+    --color-tertiary: #C0C9EE;
+    --color-word: #7B4019;
+}
+
+body{
+    font-family: 'Open Sans', sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+}

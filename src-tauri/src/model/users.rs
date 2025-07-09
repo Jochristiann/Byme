@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use diesel::Queryable;
+use serde::de::Unexpected::Option;
 use uuid::Uuid;
 use crate::model::schema::{users,user_followings};
 use crate::model::master::Origins;
@@ -10,15 +11,22 @@ use crate::model::master::Origins;
 #[diesel(table_name = users)]
 pub struct Users{
     pub id: Uuid,
-    pub name: String,
+    pub name: String,   
     pub email: String,
     pub password: String,
-    pub dob: chrono::NaiveDateTime,
-    pub image: String,
+    pub dob: Option<chrono::NaiveDateTime>,
+    pub image: Option<String>,
     pub role: String,
     pub origin_id: Option<Uuid>,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
+}
+#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations)]
+#[diesel(table_name = users)]
+pub struct RegisterUsers{
+    pub name: String,
+    pub email: String,
+    pub password: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
