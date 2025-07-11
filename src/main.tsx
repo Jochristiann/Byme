@@ -4,11 +4,12 @@ import './styles.css'
 import Login from "./AuthenticationPage/Login.tsx";
 import Register from "./AuthenticationPage/Register.tsx";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import Home from "@/GeneralPage/Home.tsx";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Login/>
+        element: <Home/>
     },
     {
         path: "/auth",
@@ -16,10 +17,14 @@ const router = createBrowserRouter([
             path: "login",
             element: <Login/>
         },
-            {
-                path: "register",
-                element: <Register/>
-            }],
+        {
+            path: "register",
+            element: <Register/>
+        }],
+    },
+    {
+        path: "/home",
+        element: <Home/>
     }
     ])
 
