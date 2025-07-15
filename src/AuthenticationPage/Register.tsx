@@ -5,7 +5,8 @@ import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {FaUser} from "react-icons/fa";
 import ErrorPopup from "@/Components/Interactive/ErrorPopup.tsx";
-import api from "@/Utility/api.tsx";
+import {registerHandler} from "@/FrontUtils/AuthenticationHandler.ts";
+import {title} from "@/FrontUtils/Library.ts";
 
 
 function Register() {
@@ -35,21 +36,21 @@ function Register() {
         }
 
         try{
-            const result = await api.post("/register", {username, email, password})
-            console.log(result)
+            await registerHandler(username, email, password)
             navigate("/home")
         }catch(error){
             setErrorMessage("Something went wrong. Please try again later.")
             setIsError(true)
         }
+
     }
     return (
         <div className={"w-screen h-screen bg-primary"}>
             <div className={"h-full flex justify-center items-center"}>
                 <div className={"bg-white rounded-4xl flex flex-col items-center justify-center gap-10 shadow-md  p-10 border-1 border-gray-300"}>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
-                        <h2 className={"text-center text-2xl font-bold"}>Sign Up to</h2>
-                        <h2 className={"text-center text-4xl font-bold"}>ByMe</h2>
+                        <h3 className={"text-center text-2xl font-bold"}>Sign Up to</h3>
+                        <h3 className={"text-center text-4xl font-bold"}>{title}</h3>
                     </div>
                     <div className={"flex flex-col gap-2"}>
                         <div className={'relative flex items-center'}>
