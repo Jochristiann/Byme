@@ -5,6 +5,7 @@ import {FcGoogle} from "react-icons/fc";
 import {IoLockClosed, IoMail} from "react-icons/io5";
 import {Link, useNavigate} from "react-router-dom";
 import ErrorPopup from "@/Components/Interactive/ErrorPopup.tsx";
+import {title} from "@/FrontUtils/Library.ts";
 
 function Login() {
     const navigate = useNavigate();
@@ -44,8 +45,8 @@ function Login() {
             <div className={"h-full flex justify-center items-center"}>
                 <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md  p-10 border-1 border-gray-300"}>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
-                        <h2 className={"text-center text-2xl font-bold"}>Sign In to</h2>
-                        <h2 className={"text-center text-4xl font-bold"}>ByMe</h2>
+                        <h3 className={"text-center text-2xl font-bold"}>Sign In to</h3>
+                        <h3 className={"text-center text-4xl font-bold"}>{title}</h3>
                     </div>
                     <div className={"flex flex-col gap-2"}>
                         <div className={'relative flex items-center'}>

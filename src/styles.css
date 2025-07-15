@@ -7,6 +7,30 @@
     --color-word: #7B4019;
 }
 
+@font-face {
+    font-family: 'Open Sans';
+    src: url('assets/font/Open_Sans/static/OpenSans-Regular.ttf') format('truetype');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('assets/font/Open_Sans/static/OpenSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('assets/font/Poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('assets/font/Poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+
 body{
     font-family: 'Open Sans', sans-serif;
     color: var(--color-word);
@@ -20,17 +44,17 @@ h1{
 }
 
 h2{
-    font-size: 2rem;
+    font-size: 2.5rem;
 }
 
 h3{
-    font-size: 1.5rem;
+    font-size: 2rem;
 }
 
 h4{
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 
 h5{
-    font-size: 0.5rem;
+    font-size: 1rem;
 }

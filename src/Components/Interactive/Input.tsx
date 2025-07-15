@@ -1,4 +1,4 @@
-import { cn } from "@/Utility/utility.ts"
+import { cn } from "@/Miscellaneous/utility.ts"
 import {cva, VariantProps} from "class-variance-authority";
 import React from "react";
 
