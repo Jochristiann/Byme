@@ -27,7 +27,7 @@ function NavigationBar() {
     }
 
     return (
-        <div className={"w-full h-25 lg:w-50 lg:h-full bg-secondary flex fixed lg:border-r-2 lg:border-black shadow-xl"}>
+        <div className={"z-50 w-full h-25 lg:w-50 lg:h-full bg-secondary flex fixed lg:border-r-1 lg:border-black shadow-xl"}>
             <div className={"w-full py-10 px-4 flex flex-row lg:flex-col justify-between items-center"}>
                 <button className={"flex lg:hidden flex-col gap-3 items-center cursor-pointer"} onClick={togglePopup}>
                     <motion.div
