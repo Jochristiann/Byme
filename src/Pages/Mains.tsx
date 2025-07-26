@@ -7,7 +7,9 @@ function Mains() {
         <div className={"w-screen min-h-screen h-full flex flex-row"}>
             <NavigationBar/>
             <div className={"flex flex-col pt-35 lg:pl-50 lg:pt-0 w-full"}>
-                <Outlet/>
+                <div className={"flex-grow-1"}>
+                    <Outlet/>
+                </div>
                 <Footer/>
             </div>
         </div>
