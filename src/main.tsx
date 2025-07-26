@@ -9,6 +9,7 @@ import Mains from "@/Pages/Mains.tsx";
 import Explore from "@/Routes/Explore.tsx";
 import PostDetail from "@/Routes/PostDetail.tsx";
 import ForYourPage from "@/Routes/ForYourPage.tsx";
+import Profile from "@/Routes/Profile.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/for-your-page" element={<ForYourPage/>}/>
                     <Route path="/explore" element={<Explore/>}/>
                     <Route path="/post" element={<PostDetail/>}/>
+                    <Route path="/profile" element={<Profile/>}/>
                 </Route>
                 <Route path="/auth/login" element={<Login/>}/>
                 <Route path="/auth/register" element={<Register/>}/>

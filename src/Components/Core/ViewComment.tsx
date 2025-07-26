@@ -10,7 +10,7 @@ function ViewComment({closeComment}:{closeComment:()=>void}) {
                 <div className={"flex flex-col gap-5 sticky"}>
                     <div className={"flex flex-row justify-between items-center border-b-2 border-primary"}>
                         <h4 className={"font-bold"}>Comments</h4>
-                        <RxCross2 className={"lg:hidden"} size={16} onClick={closeComment}/>
+                        <RxCross2 className={"cursor-pointer"} size={16} onClick={closeComment}/>
                     </div>
                     <Input placeholder={"Add your comment..."}/>
                 </div>

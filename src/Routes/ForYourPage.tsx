@@ -1,14 +1,17 @@
 import test from "@/assets/Videos/The Fantastic Four First Steps Official Teaser Only in Theaters July 25 - Marvel Entertainment (1080p, h264).mp4";
 import { motion } from "framer-motion";
+import testP from "@/assets/Profile/VanessaKirby.jpg"
 import {useRef, useState} from "react";
-import { FaPlay, FaVolumeMute, FaVolumeUp} from "react-icons/fa";
+import {FaCommentDots, FaHeart, FaPause, FaPlay, FaVolumeMute, FaVolumeUp} from "react-icons/fa";
+import ViewComment from "@/Components/Core/ViewComment.tsx";
 
 function ForYourPage() {
     const videos = useRef<HTMLVideoElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(false);
     const [progress, setProgress] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
+    const [viewComment, setViewComment] = useState(false)
 
 
     const togglePlay = () => {
@@ -48,9 +51,15 @@ function ForYourPage() {
         video.currentTime = (clickX / width) * video.duration;
     };
 
+    function toggleComment() {
+        setViewComment(!viewComment);
+    }
+
     return (
-        <div className={"flex flex-col gap-5 w-full"}>
-            <div className="relative w-full">
+        <div className={"flex flex-row w-full"}>
+            <div className="relative w-full h-full"
+                 onMouseEnter={() => setIsHovered(true)}
+                 onMouseLeave={() => setIsHovered(false)}>
                 <video
                     ref={videos}
                     src={test}
@@ -59,23 +68,27 @@ function ForYourPage() {
                     muted={isMuted}
                     className="w-full h-screen object-cover"
                     onClick={togglePlay}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+
                     onTimeUpdate={handleTimeUpdate}
                 />
 
-                {!isPlaying && (
+                {isHovered && (
                     <div
                         className="absolute bg-black/60 inset-0 flex justify-center items-center"
                         onClick={togglePlay}
                     >
                         <div className="p-4 rounded-full cursor-pointer hover:scale-110 transition">
-                            <FaPlay className="text-white text-3xl" />
+                            {isPlaying ? (
+                                <FaPlay className="text-white text-3xl" />
+                            ) : (
+                                <FaPause className="text-white text-3xl" />
+                                )}
+
                         </div>
                     </div>
                 )}
 
-                {(!isPlaying ||isHovered) &&(
+                {(!isPlaying || isHovered) &&(
                     <motion.div
                         initial={{ opacity: 0, y: -1, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -97,7 +110,26 @@ function ForYourPage() {
                         />
                     </div>
                 </div>
+
+                <div className={"absolute rounded-tl-xl right-0 bottom-1 p-2 pb-10 text-white bg-gradient-to-tl from-black/50 to-transparent flex flex-col gap-7 justify-center"}>
+                    <div>
+                        <img src={testP} alt="Profile" className={"object-cover rounded-full size-16 lg:size-24 border-primary border-2"}/>
+                    </div>
+                    <div className="flex flex-col gap-1 items-center">
+                        <FaHeart className={"size-4 lg:size-5"} />
+                        <p>1,231,328</p>
+                    </div>
+                    <div className="flex flex-col gap-1 items-center">
+                        <FaCommentDots className={"cursor-pointer size-4 lg:size-5"} onClick={toggleComment}/>
+                        <p>1,000,000</p>
+                    </div>
+
+                </div>
             </div>
+            {viewComment && (
+                <ViewComment closeComment={toggleComment}/>
+            )}
+
         </div>
     );
 }
