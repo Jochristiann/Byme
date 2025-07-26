@@ -27,6 +27,12 @@
 
 @font-face {
     font-family: 'Poppins';
+    src: url('assets/font/Poppins/Poppins-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'Poppins';
     src: url('assets/font/Poppins/Poppins-Bold.ttf') format('truetype');
     font-weight: 700;
 }
