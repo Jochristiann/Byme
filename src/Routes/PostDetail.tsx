@@ -1,5 +1,5 @@
-import PostContent from "@/Components/Core/PostContent.tsx";
-import ViewComment from "@/Components/Core/ViewComment.tsx";
+import PostContent from "@/Components/Core/Post/PostContent.tsx";
+import ViewComment from "@/Components/Core/Post/ViewComment.tsx";
 import {useState} from "react";
 import {TbArrowBackUp} from "react-icons/tb";
 import {useNavigate} from "react-router-dom";

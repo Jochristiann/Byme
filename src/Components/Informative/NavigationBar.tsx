@@ -5,6 +5,8 @@ import {IoClose} from "react-icons/io5";
 import {RxHamburgerMenu} from "react-icons/rx";
 import { motion } from "framer-motion";
 import {useState} from "react";
+import {FaCompass, FaHome} from "react-icons/fa";
+import {PiSparkleFill} from "react-icons/pi";
 
 function NavigationBar() {
 
@@ -13,9 +15,9 @@ function NavigationBar() {
 
     const [isOpen, setIsOpen] = useState(false);
     const pathLink = [
-        {path: "/home", name: "Home"},
-        {path: "/for-your-page", name: "FYP"},
-        {path: "/explore", name: "Explore"},
+        {path: "/home", name: "Home", icon: FaHome},
+        {path: "/for-your-page", name: "For You", icon: PiSparkleFill},
+        {path: "/explore", name: "Explore", icon: FaCompass},
     ]
 
     function toLogin(){
@@ -27,9 +29,9 @@ function NavigationBar() {
     }
 
     return (
-        <div className={"z-50 w-full h-25 lg:w-50 lg:h-full bg-secondary flex fixed lg:border-r-1 lg:border-black shadow-xl"}>
-            <div className={"w-full py-10 px-4 flex flex-row lg:flex-col justify-between items-center"}>
-                <button className={"flex lg:hidden flex-col gap-3 items-center cursor-pointer"} onClick={togglePopup}>
+        <div className={"z-50 w-full h-25 lg:w-40 lg:h-full bg-secondary flex fixed lg:border-r-1 lg:border-black shadow-xl"}>
+            <div className={"w-full flex flex-row lg:flex-col justify-between items-center"}>
+                <button className={"py-10 px-4 flex lg:hidden flex-col gap-3 items-center cursor-pointer"} onClick={togglePopup}>
                     <motion.div
                         initial={{ rotate: 0 }}
                         animate={{ rotate: isOpen ? 90 : 0 }}
@@ -39,15 +41,20 @@ function NavigationBar() {
                         {isOpen ? <IoClose size={28} /> : <RxHamburgerMenu size={28} />}
                     </motion.div>
                 </button>
-                <div className={"flex flex-col items-center justify-center"}>
+                <div className={"w-full flex flex-col items-center justify-center"}>
                     <img src={logo} alt={"Logo"} className={"size-24 p-4"}/>
-                    <nav className={"hidden lg:flex flex-col gap-4 items-center font-bold"}>
+                    <nav className={"w-full hidden lg:flex flex-col items-start font-bold"}>
                         {pathLink.map((link) => (
-                            <Link to={link.path} key={link.path}>{link.name}</Link>
+                            <Link to={link.path} key={link.path}
+                                  className={"flex flex-row items-center gap-5 px-4 py-6 hover:bg-gray-200 w-full cursor-pointer"}
+                            >
+                                <link.icon className={"size-6"}/>
+                                <p>{link.name}</p>
+                            </Link>
                         ))}
                     </nav>
                 </div>
-                <div className={"flex items-center justify-center"}>
+                <div className={"py-10 px-4 flex items-center justify-center"}>
                     <Button onClick={toLogin}>Sign In</Button>
                     {/*<img alt={"Logo"} className={"size-48"}/>*/}
                     {/*<div className={"flex flex-row gap-4 items-center"}>User</div>*/}
@@ -70,9 +77,12 @@ function NavigationBar() {
                         {/*        <Link to="/profile" className="text-sm hover:underline mt-1" onClick={togglePopup}>View Profile</Link>*/}
                         {/*    </div>*/}
                         {/*)}*/}
-                        <nav className={"flex flex-col gap-4 items-center justify-center w-full text-lg"}>
+                        <nav className={"flex flex-col items-center justify-center w-full text-lg"}>
                             {pathLink.map(link => (
-                                <Link key={link.path} to={link.path} className="px-8 pb-8 hover:bg-gray-200 w-full" onClick={togglePopup}>{link.name}</Link>
+                                <Link key={link.path} to={link.path} className="flex flex-row items-center gap-5 px-8 py-5 hover:bg-gray-200 w-full cursor-pointer" onClick={togglePopup}>
+                                    <link.icon className={"size-6"}/>
+                                    <p>{link.name}</p>
+                                </Link>
                             ))}
                         </nav>
                         <div className="mt-auto border-t border-white/20 pt-4 flex justify-center items-center">
