@@ -16,7 +16,7 @@ function ViewComment({closeComment}:{closeComment:()=>void}) {
                 </div>
                 <div className={"flex flex-col gap-2 h-full"}>
                     <div className={"flex flex-col gap-2 w-full px-5"}>
-                        {[...Array(20).keys()].map((_) => (
+                        {[...Array(5).keys()].map((_) => (
                             <CommentMessage/>
                         ))}
                     </div>

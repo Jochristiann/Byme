@@ -1,6 +1,6 @@
 import test from "@/assets/Profile/VanessaKirby.jpg"
 import {Button} from "@/Components/Interactive/Button.tsx";
-import PostCard from "@/Components/Core/PostCard.tsx";
+import PostCard from "@/Components/Core/Post/PostCard.tsx";
 import {MdVerified} from "react-icons/md";
 // import {CgProfile} from "react-icons/cg";
 function Profile() {
@@ -19,23 +19,23 @@ function Profile() {
             <div className={"flex flex-col w-full gap-10"}>
                 <div className={"flex flex-col lg:flex-row gap-2 lg:gap-5 items-center"}>
                     <div className={"flex flex-col lg:flex-row gap-5 w-full items-center justify-center lg:justify-start"}>
-                        <img src={test} alt="Profile" className={"object-cover rounded-full size-32 lg:size-56 border-primary border-2"}/>
+                        <img src={test} alt="Profile" className={"object-cover rounded-full size-32 lg:size-52 border-primary border-2"}/>
                         {/*<CgProfile size={48}/>*/}
                         <div className={"flex flex-col gap-2 items-center lg:items-start"}>
                             <div className={"flex flex-row gap-7 items-center justify-center lg:justify-start"}>
                                 <div className={"flex flex-col gap-0.25 items-center"}>
-                                    <h5 className={"font-semibold"}>100</h5>
-                                    <p className={"text-sm"}>Posts</p>
+                                    <h5 className={"font-semibold text-xl"}>100</h5>
+                                    <p className={"text-md"}>Posts</p>
                                 </div>
 
                                 <div className={"flex flex-col gap-0.25 items-center"}>
-                                    <h5 className={"font-semibold"}>1,894,704</h5>
-                                    <p className={"text-sm"}>Followers</p>
+                                    <h5 className={"font-semibold text-xl"}>1,894,704</h5>
+                                    <p className={"text-md"}>Followers</p>
                                 </div>
 
                                 <div className={"flex flex-col gap-0.25 items-center"}>
-                                    <h5 className={"font-semibold"}>50</h5>
-                                    <p className={"text-sm"}>Followings</p>
+                                    <h5 className={"font-semibold text-xl"}>50</h5>
+                                    <p className={"text-md"}>Followings</p>
                                 </div>
                             </div>
                             <div className={"flex flex-col lg:flex-row gap-0.5 lg:gap-2 items-center justify-center lg:justify-start"}>

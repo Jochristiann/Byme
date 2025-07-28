@@ -30,7 +30,7 @@ function Footer() {
                                 <h5 className={"font-bold"}>Careers</h5>
                                 <div className={"flex flex-col gap-1 justify-center"}>
                                     <Link to={"/our-team"}>Our Team</Link>
-                                    <Link to={"/career"}>Opportunity</Link>
+                                    <Link to={"/career"}>Opportunities</Link>
                                     <p>Affiliates</p>
                                     <p>Testimonials</p>
                                 </div>
