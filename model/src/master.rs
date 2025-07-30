@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use crate::model::schema::{origins,categories, violationtypes};
+use crate::schema::{origins,categories, violationtypes};
 
 #[derive(Queryable, Insertable)]
 #[diesel(table_name = origins)]

@@ -1,12 +1,13 @@
+use std::option::Option;
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use diesel::Queryable;
-use serde::de::Unexpected::Option;
 use uuid::Uuid;
-use crate::model::schema::{users,user_followings};
-use crate::model::master::Origins;
+use crate::schema::{users,user_followings};
+use crate::master::Origins;
 
-#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations)]
+#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable)]
 #[diesel(belongs_to(Origins, foreign_key = origin_id))]
 #[diesel(table_name = users)]
 pub struct Users{
@@ -14,14 +15,14 @@ pub struct Users{
     pub name: String,   
     pub email: String,
     pub password: String,
-    pub dob: Option<chrono::NaiveDateTime>,
+    pub dob: Option<NaiveDateTime>,
     pub image: Option<String>,
     pub role: String,
     pub origin_id: Option<Uuid>,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
-#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations)]
+#[derive(Queryable, Serialize, Deserialize, Debug)]
 #[diesel(table_name = users)]
 pub struct RegisterUsers{
     pub name: String,
@@ -42,7 +43,7 @@ pub struct NewUser {
     pub password: String,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug, Serialize, Deserialize)]
+#[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
 #[diesel(primary_key(user_id, followed_user_id))]
 #[diesel(table_name = user_followings)] 
 #[diesel(belongs_to(Users, foreign_key = user_id))]
