@@ -1,13 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod model;
-#[path = "auth-services/mod.rs"]
-mod auth_services;
-mod state;
+#[path = "auth-services/src/mod.rs"]
 
-use crate::state::AppState;
-use sqlx::PgPool;
 use tauri::Manager;
 
 // Learn more about Tauri commands at https://v1.tauri.app/v1/guides/features/command
@@ -18,10 +13,6 @@ fn greet(name: &str) -> String {
 
 #[tokio::main]
 async fn main() {
-
-    let db = PgPool::connect("postgres://user:pass@localhost/dbname")
-        .await
-        .expect("Could not connect to DB");
 
     // let app_state = AppState {
     //     db,

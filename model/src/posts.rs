@@ -1,8 +1,8 @@
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::model::schema::{posts};
-use crate::model::users::Users;
+use crate::schema::{posts};
+use crate::users::Users;
 
 #[derive(Queryable, Identifiable, Associations, Debug, Serialize, Deserialize)]
 #[diesel(belongs_to(Users, foreign_key = user_id))]
