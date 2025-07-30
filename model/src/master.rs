@@ -1,11 +1,11 @@
 use diesel::prelude::*;
-use crate::schema::{origins,categories, violationtypes};
+use crate::schema::{origins,categories,violationtypes};
 
 #[derive(Queryable, Insertable)]
 #[diesel(table_name = origins)]
 pub struct Origins {
     pub id: uuid::Uuid,
-    pub name: String,
+    pub country: String,
 }
 
 #[derive(Queryable, Insertable)]
@@ -19,5 +19,5 @@ pub struct Categories {
 #[diesel(table_name = violationtypes)]
 pub struct ViolationTypes {
     pub id: uuid::Uuid,
-    pub name: String,
+    pub type_: String,
 }
