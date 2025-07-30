@@ -4,7 +4,7 @@ diesel::table! {
     categories (id) {
         id -> Uuid,
         #[max_length = 255]
-        name -> Nullable<Varchar>,
+        name -> Varchar,
     }
 }
 
@@ -13,8 +13,8 @@ diesel::table! {
         id -> Uuid,
         #[max_length = 255]
         message -> Varchar,
-        toid -> Nullable<Uuid>,
-        fromid -> Nullable<Uuid>,
+        toid -> Uuid,
+        fromid -> Uuid,
         created_at -> Timestamp,
     }
 }
@@ -31,8 +31,8 @@ diesel::table! {
         id -> Uuid,
         #[max_length = 255]
         message -> Varchar,
-        userid -> Nullable<Uuid>,
-        created_at -> Nullable<Timestamp>,
+        userid -> Uuid,
+        created_at -> Timestamp,
     }
 }
 
@@ -66,9 +66,9 @@ diesel::table! {
         #[max_length = 255]
         description -> Varchar,
         views -> Nullable<Int8>,
-        categoryid -> Nullable<Uuid>,
-        userid -> Nullable<Uuid>,
-        created_at -> Nullable<Timestamp>,
+        categoryid -> Uuid,
+        userid -> Uuid,
+        created_at -> Timestamp,
     }
 }
 
@@ -90,9 +90,9 @@ diesel::table! {
         description -> Varchar,
         #[max_length = 255]
         image -> Varchar,
-        violationtypeid -> Nullable<Uuid>,
-        userid -> Nullable<Uuid>,
-        created_at -> Nullable<Timestamp>,
+        violationtypeid -> Uuid,
+        userid -> Uuid,
+        created_at -> Timestamp,
     }
 }
 
@@ -105,7 +105,7 @@ diesel::table! {
         audio -> Varchar,
         #[max_length = 255]
         image -> Nullable<Varchar>,
-        created_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
     }
 }
 
@@ -123,16 +123,16 @@ diesel::table! {
         name -> Varchar,
         dob -> Nullable<Date>,
         #[max_length = 255]
-        password -> Varchar,
-        #[max_length = 255]
         email -> Varchar,
         #[max_length = 255]
-        role -> Varchar,
+        password -> Varchar,
         #[max_length = 255]
         image -> Nullable<Varchar>,
+        #[max_length = 255]
+        role -> Varchar,
         originid -> Nullable<Uuid>,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -146,9 +146,8 @@ diesel::table! {
 diesel::table! {
     violationtypes (id) {
         id -> Uuid,
-        #[sql_name = "type"]
         #[max_length = 255]
-        type_ -> Varchar,
+        name -> Varchar,
     }
 }
 

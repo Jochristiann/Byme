@@ -19,5 +19,5 @@ pub struct Categories {
 #[diesel(table_name = violationtypes)]
 pub struct ViolationTypes {
     pub id: uuid::Uuid,
-    pub type_: String,
+    pub name: String,
 }

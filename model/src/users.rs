@@ -12,13 +12,13 @@ use crate::master::Origins;
 #[diesel(table_name = users)]
 pub struct Users{
     pub id: Uuid,
-    pub name: String,   
+    pub name: String,
+    pub dob: Option<NaiveDate>,
     pub email: String,
     pub password: String,
-    pub dob: Option<NaiveDate>,
     pub image: Option<String>,
     pub role: String,
-    pub originid: Uuid,
+    pub originid: Option<Uuid>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
