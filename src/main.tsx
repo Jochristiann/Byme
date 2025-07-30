@@ -10,21 +10,27 @@ import Explore from "@/Routes/Explore.tsx";
 import PostDetail from "@/Routes/PostDetail.tsx";
 import ForYourPage from "@/Routes/ForYourPage.tsx";
 import Profile from "@/Routes/Profile.tsx";
+import EditProfile from "@/Routes/EditProfile.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <Router>
             <Routes>
-                <Route path="/" element={<Mains/>}>s
-                    <Route index element={<Home/>}/>
-                    <Route path="/home" element={<Home/>}/>
-                    <Route path="/for-your-page" element={<ForYourPage/>}/>
-                    <Route path="/explore" element={<Explore/>}/>
-                    <Route path="/post" element={<PostDetail/>}/>
-                    <Route path="/profile" element={<Profile/>}/>
+                <Route path="/" element={<Mains />}>
+                    <Route index element={<Home />} />
+                    <Route path="home" element={<Home />} />
+                    <Route path="for-your-page" element={<ForYourPage />} />
+                    <Route path="explore" element={<Explore />} />
+                    <Route path="post" element={<PostDetail />} />
+
+                    <Route path="profile">
+                        <Route index element={<Profile />} />
+                        <Route path="edit-profile" element={<EditProfile />} />
+                    </Route>
                 </Route>
-                <Route path="/auth/login" element={<Login/>}/>
-                <Route path="/auth/register" element={<Register/>}/>
+
+                <Route path="/auth/login" element={<Login />} />
+                <Route path="/auth/register" element={<Register />} />
             </Routes>
         </Router>
     </React.StrictMode>

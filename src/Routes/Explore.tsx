@@ -11,7 +11,7 @@ function Explore() {
     const title = search == "" ? "Today's Trend" : "Related Posts"
 
     return (
-        <div className={"flex flex-col p-10 gap-4"}>
+        <div className={"min-h-screen w-full h-full flex flex-col p-10 gap-4"}>
             <Input serial={"search"} color={"cream"} placeholder={"What's in your mind?"} onChange={(e)=>{setSearch(e.target.value)}} />
 
             <img src={banner2} alt={"Banner"} className={"hidden md:block w-full h-36 shadow-xl object-cover rounded-xl"}/>

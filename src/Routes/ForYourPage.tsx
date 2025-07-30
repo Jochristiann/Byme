@@ -89,7 +89,7 @@ function ForYourPage() {
     }
 
     return (
-        <div className={"flex flex-row w-full"}>
+        <div className={"flex flex-row min-h-screen w-full h-full"}>
             <div className="relative w-full h-full">
                 <div className="relative w-full h-full"
                      onMouseEnter={() => setIsHovered(true)}
