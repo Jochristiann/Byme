@@ -3,13 +3,13 @@ use diesel::pg::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use crate::users::Users;
+use crate::users::{UserResponse};
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: DbPool,
-    pub current_user: Arc<Mutex<Option<Users>>>,
+    pub current_user: Arc<Mutex<Option<UserResponse>>>,
 }
 
 

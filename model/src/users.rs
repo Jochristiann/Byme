@@ -37,7 +37,19 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize,Deserialize, Clone)]
+pub struct UserResponse{
+    pub id: Uuid,
+    pub name: String,
+    pub email: String,
+    pub dob: Option<NaiveDate>,
+    pub image: Option<String>,
+    pub role: String,
+    pub origin_id: Option<Uuid>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+#[derive(Serialize, Deserialize,Clone)]
 pub struct NewUser {
     pub name: String,
     pub email: String,

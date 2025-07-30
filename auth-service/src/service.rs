@@ -1,8 +1,8 @@
 use uuid::Uuid;
 use model::state::DbPool;
-use model::users::{LoginRequest, NewUser, RegisterUsers, Users};
+use model::users::{LoginRequest, NewUser, RegisterUsers, UserResponse, Users};
 use crate::{repository};
-use crate::response::UserResponse;
+
 
 pub async fn insert_new_user(pool: &DbPool, new_user:NewUser) -> bool{
     let user = RegisterUsers{
