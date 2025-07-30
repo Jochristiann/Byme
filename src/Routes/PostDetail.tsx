@@ -18,7 +18,7 @@ function PostDetail() {
     }
 
     return (
-        <div className={"w-full h-full"}>
+        <div className={"min-h-screen w-full h-full"}>
             <div className={"flex flex-col gap-2"}>
                 <div className={"relative "}>
                     <TbArrowBackUp onClick={backTrack} size={40} className={"absolute cursor-pointer top-2 left-1 text-white"} />

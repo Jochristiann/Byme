@@ -10,7 +10,7 @@ function Home() {
     const navigate = useNavigate();
 
     return (
-        <div className={"flex flex-col"}>
+        <div className={"min-h-screen w-full h-full flex flex-col"}>
             <div className={"flex flex-row justify-between items-center"}>
                 <div className={"px-32 pb-20 flex flex-col gap-10 justify-center items-center md:items-start"}>
                     <div className={"flex flex-col gap-2 justify-center text-center md:text-start"}>

@@ -9,5 +9,5 @@ export const formatLikeNumber = (num: number): string => {
         return millions % 1 === 0 ? `${millions}M` : `${millions.toFixed(1)}M`;
     }
 
-    return num.toLocaleString();
+    return num.toLocaleString('en-US');
 }
