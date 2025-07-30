@@ -14,8 +14,7 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
 
     service::insert_new_user(&state.db, user.clone()).await;
 
-
-    let (response, password) = service::login_user(&state.db, user.email).await;
+    let (response, _) = service::login_user(&state.db, user.email).await;
     let message;
     let mut status= "Failed".to_string();
     let responses;
