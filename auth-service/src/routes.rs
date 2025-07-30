@@ -9,14 +9,15 @@ pub async fn register(
     controller::register_user(payload,state).await
 }
 
-// pub async fn login(
-//     Json(payload): Json<LoginRequest>,
-// ) -> Json<String> {
-//     controller::login_user(payload).await
-// }
+pub async fn login(
+    State(state): State<AppState>,
+    Json(payload): Json<LoginRequest>,
+) -> Json<String> {
+    controller::login_user(payload, state).await
+}
 
 pub fn auth_routes() -> axum::Router<AppState> {
     axum::Router::new()
         .route("/register", axum::routing::post(register))
-        // .route("/login", axum::routing::post(login))
+        .route("/login", axum::routing::post(login))
 }

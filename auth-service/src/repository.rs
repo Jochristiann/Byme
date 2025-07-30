@@ -1,9 +1,9 @@
 use diesel::prelude::*;
-use model::users::{Users};
+use model::users::{RegisterUsers, Users};
 use model::schema::users::dsl::*;
 use model::state::DbPool;
 
-pub async fn insert_user(pool: &DbPool, new_user: &Users) -> bool {
+pub async fn insert_user(pool: &DbPool, new_user: &RegisterUsers) -> bool {
     let conn = &mut pool.get().expect("Failed to get DB connection");
 
     diesel::insert_into(users)
@@ -12,12 +12,8 @@ pub async fn insert_user(pool: &DbPool, new_user: &Users) -> bool {
         .is_ok()
 }
 
-// pub async fn get_user_by_email(conn: &mut PgConnection, email_input: &str) -> Option<Users> {
-//
-//
-//     // users
-//     //     .filter(email.eq(email_input))
-//     //     .first::<Users>(conn)
-//     //     .ok()
-//
-// }
+pub async fn get_user_by_email(pool: &DbPool, email_input: &str) -> Option<Users> {
+    let conn = &mut pool.get().expect("Failed to get DB connection");
+    
+
+}

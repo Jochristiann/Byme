@@ -5,7 +5,7 @@ use crate::schema::{posts};
 use crate::users::Users;
 
 #[derive(Queryable, Identifiable, Associations, Debug, Serialize, Deserialize)]
-#[diesel(belongs_to(Users, foreign_key = user_id))]
+#[diesel(belongs_to(Users, foreign_key = id))]
 #[diesel(table_name = posts)]
 pub struct Posts{
     pub id: Uuid,
