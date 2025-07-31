@@ -121,6 +121,8 @@ diesel::table! {
         id -> Uuid,
         #[max_length = 255]
         name -> Varchar,
+        #[max_length = 20]
+        gender -> Varchar,
         dob -> Nullable<Date>,
         #[max_length = 255]
         email -> Varchar,

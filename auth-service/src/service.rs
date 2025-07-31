@@ -1,6 +1,6 @@
 use uuid::Uuid;
 use model::state::DbPool;
-use model::users::{LoginRequest, NewUser, RegisterUsers, UserResponse, Users};
+use model::users::{NewUser, RegisterUsers, UserResponse, Users};
 use crate::{repository};
 
 
@@ -22,6 +22,7 @@ pub async fn login_user(pool: &DbPool, email_input:String) -> (Option<UserRespon
         let converted_user = UserResponse{
             id: user.id,
             name: user.name,
+            gender: user.gender,
             email:  user.email,
             dob: user.dob,
             image: user.image,
