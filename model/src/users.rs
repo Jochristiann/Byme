@@ -13,6 +13,7 @@ use crate::master::Origins;
 pub struct Users{
     pub id: Uuid,
     pub name: String,
+    pub gender: String,
     pub dob: Option<NaiveDate>,
     pub email: String,
     pub password: String,
@@ -41,6 +42,7 @@ pub struct LoginRequest {
 pub struct UserResponse{
     pub id: Uuid,
     pub name: String,
+    pub gender:String,
     pub email: String,
     pub dob: Option<NaiveDate>,
     pub image: Option<String>,
