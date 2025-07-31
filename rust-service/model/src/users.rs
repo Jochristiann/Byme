@@ -2,12 +2,12 @@ use std::option::Option;
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
-use diesel::Queryable;
+use diesel::{QueryId, Queryable};
 use uuid::Uuid;
 use crate::schema::{users, userfollowings};
 use crate::master::Origins;
 
-#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable)]
+#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable,QueryId)]
 #[diesel(belongs_to(Origins, foreign_key = id))]
 #[diesel(table_name = users)]
 pub struct Users{
