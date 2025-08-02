@@ -38,10 +38,10 @@ export default function Dropdown({
     }, []);
 
     return (
-        <div className="relative inline-block w-64" ref={dropdownRef}>
+        <div className="relative inline-block w-full" ref={dropdownRef}>
             <Button
                 onClick={() => setOpen((prev) => !prev)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 rounded-xl shadow-sm text-left text-sm text-gray-700 hover:bg-gray-50 flex flex-row justify-between items-center"
+                className="w-full border border-tertiary bg-white px-4 py-2 rounded-xl shadow-sm text-left text-sm text-gray-700 hover:bg-gray-50 flex flex-row justify-between items-center"
             >
                 {selected || placeholder}
                 <FaAngleDown/>
