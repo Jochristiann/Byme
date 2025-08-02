@@ -3,7 +3,6 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use crate::{controller, AppState};
 use model::users::{NewUser,LoginRequest};
-use crate::response::LoginResponse;
 
 pub async fn register(
     State(state): State<AppState>,
@@ -34,6 +33,12 @@ pub async fn get_current_user(State(state): State<AppState>) -> Response {
     } else {
         (StatusCode::UNAUTHORIZED, "Not logged in").into_response()
     }
+}
+
+
+pub async fn change_password (State(state): State<AppState>) -> Response {
+    
+    (StatusCode::UNAUTHORIZED, "Not logged in").into_response()
 }
 
 pub fn auth_routes() -> axum::Router<AppState> {

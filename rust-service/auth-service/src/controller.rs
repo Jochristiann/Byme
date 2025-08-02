@@ -3,6 +3,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use model::users::{NewUser,LoginRequest};
 use crate::{service};
 use model::state::AppState;
+use user_service::service as external_service;
 use crate::response::{LoginResponse};
 
 pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum::Json<LoginResponse>) {
@@ -18,7 +19,7 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
     let x = service::insert_new_user(&state.db, user.clone()).await;
 
     if x {
-        let (response, _) = service::login_user(&state.db, user.email).await;
+        let (response, _) = external_service::get_user_by_email(&state.db, user.email).await;
         if let Some(user) = response {
             message = "Successfully registered".to_string();
             status = "Success".to_string();
@@ -50,14 +51,10 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
         };
         (StatusCode::BAD_REQUEST,axum::Json(responses))
     }
-
-
-
-
 }
 
 pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, axum::Json<LoginResponse>) {
-    let (response, password) = service::login_user(&state.db, login.email).await;
+    let (response, password) = external_service::get_user_by_email(&state.db, login.email).await;
     let mut message= "Incorrect Password".to_string() ;
     let mut status= "Failed".to_string();
     let responses;
@@ -97,4 +94,9 @@ pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, ax
 
 pub async fn login_by_google() -> axum::Json<String>{
     axum::Json("Failed to login".to_string())
+}
+
+pub async fn change_password(id: String, new_password:String)-> axum::Json<String>{
+
+    axum::Json("Failed to change password".to_string())
 }
