@@ -15,6 +15,7 @@ pub struct Users{
     pub name: String,
     pub gender: String,
     pub dob: Option<NaiveDate>,
+    pub username: String,
     pub email: String,
     pub password: String,
     pub image: Option<String>,

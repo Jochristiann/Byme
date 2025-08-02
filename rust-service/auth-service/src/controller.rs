@@ -1,6 +1,7 @@
 use axum::http::StatusCode;
 use bcrypt::{hash, verify, DEFAULT_COST};
-use model::users::{NewUser,LoginRequest};
+use diesel::r2d2::State;
+use model::users::{NewUser, LoginRequest};
 use crate::{service};
 use model::state::AppState;
 use user_service::service as external_service;
@@ -96,7 +97,11 @@ pub async fn login_by_google() -> axum::Json<String>{
     axum::Json("Failed to login".to_string())
 }
 
-pub async fn change_password(id: String, new_password:String)-> axum::Json<String>{
-
+pub async fn change_password(id: String, new_password:String, state: AppState)-> axum::Json<String>{
+    let (response, password) = external_service::get_user_by_id(&state.db, id).await;
     axum::Json("Failed to change password".to_string())
+}
+
+fn validate_password(password:&String) -> bool{
+    true
 }

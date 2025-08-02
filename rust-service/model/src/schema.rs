@@ -125,6 +125,8 @@ diesel::table! {
         gender -> Varchar,
         dob -> Nullable<Date>,
         #[max_length = 255]
+        username -> Varchar,
+        #[max_length = 255]
         email -> Varchar,
         #[max_length = 255]
         password -> Varchar,
