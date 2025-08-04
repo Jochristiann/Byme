@@ -8,8 +8,18 @@ pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db: DbPool,
+    pub db: DbPool
+}
+
+#[derive(Clone)]
+pub struct UserState {
     pub current_user: Arc<Mutex<Option<UserResponse>>>,
+}
+
+#[derive(Clone)]
+pub struct AuthState {
+    pub app_state: AppState,
+    pub user_state: UserState
 }
 
 

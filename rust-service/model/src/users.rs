@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::schema::{users, userfollowings};
 use crate::master::Origins;
 
-#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable,QueryId)]
+#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable,QueryId, Clone)]
 #[diesel(belongs_to(Origins, foreign_key = id))]
 #[diesel(table_name = users)]
 pub struct Users{
@@ -18,16 +18,16 @@ pub struct Users{
     pub username: String,
     pub email: String,
     pub password: String,
+    pub bio: String,
     pub image: Option<String>,
     pub role: String,
+    pub isverified: bool,
     pub originid: Option<Uuid>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
-#[derive(Queryable, Serialize, Deserialize, Debug, Insertable)]
-#[diesel(table_name = users)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct RegisterUsers{
-    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
@@ -39,24 +39,30 @@ pub struct LoginRequest {
     pub password: String,
 }
 
+#[derive(Queryable, Serialize, Deserialize, Debug, Insertable, Clone)]
+#[diesel(table_name = users)]
+pub struct NewUsers{
+    pub id: Uuid,
+    pub name: String,
+    pub username: String,
+    pub email: String,
+    pub password: String,
+}
+
 #[derive(Serialize,Deserialize, Clone)]
 pub struct UserResponse{
     pub id: Uuid,
     pub name: String,
     pub gender:String,
-    pub email: String,
     pub dob: Option<NaiveDate>,
+    pub email: String,
+    pub bio: String,
     pub image: Option<String>,
     pub role: String,
+    pub isverified: bool,
     pub origin_id: Option<Uuid>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-#[derive(Serialize, Deserialize,Clone)]
-pub struct NewUser {
-    pub name: String,
-    pub email: String,
-    pub password: String,
 }
 
 #[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]

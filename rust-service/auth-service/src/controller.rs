@@ -1,14 +1,49 @@
 use axum::http::StatusCode;
-use bcrypt::{hash, verify, DEFAULT_COST};
-use diesel::r2d2::State;
-use model::users::{NewUser, LoginRequest};
+use lettre::{Message, SmtpTransport, Transport};
+use argon2::{
+    Argon2, PasswordHash,
+};
+use axum::Json;
+use lettre::transport::smtp::authentication::Credentials;
+use password_hash::{ PasswordHasher, PasswordVerifier, SaltString};
+use rand_core::OsRng;
+use model::users::{LoginRequest, RegisterUsers};
 use crate::{service};
-use model::state::AppState;
+use model::state::{AppState, UserState};
 use regex::Regex;
 use user_service::service as external_service;
 use crate::response::{LoginResponse};
 
-pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum::Json<LoginResponse>) {
+fn hash_password(password: &str) -> String {
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+
+    let hashed = argon2
+        .hash_password(password.as_bytes(), &salt).unwrap().to_string();
+
+    hashed
+}
+
+fn verify_password(hashed_password: &str, plain_password: &str) -> bool {
+    let parsed_hash = PasswordHash::new(&*hashed_password).unwrap();
+    let result = Argon2::default().verify_password(plain_password.as_bytes(), &parsed_hash);
+    result.is_ok()
+}
+
+fn validate_password(password:&String) -> (bool, String){
+    if password.clone().len() < 6 {return (false, "Password too short".to_string())}
+    let has_uppercase = Regex::new(r"[A-Z]").unwrap();
+    let has_number = Regex::new(r"\d").unwrap();
+    let has_special = Regex::new(r"[!@#$%^&*(),.?|:{}<>]").unwrap();
+
+    if !has_uppercase.is_match(password){return (false, "Password must contain uppercase letter".to_string());}
+    else if!has_number.is_match(password){return (true, "Password must contain at least one number".to_string());}
+    else if!has_special.is_match(password) { return (false, "Password must has at least one special character.".to_string()); }
+
+    (true, "Password accepted".to_string())
+}
+
+pub async fn register_user(user: RegisterUsers, state: AppState, user_state: UserState) -> (StatusCode, Json<LoginResponse>) {
     let message;
     let mut status= "Failed".to_string();
     let responses;
@@ -21,16 +56,19 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
             user: None,
         };
 
-        return (StatusCode::FORBIDDEN,axum::Json(responses))
+        return (StatusCode::FORBIDDEN,Json(responses))
     }
 
-    let hashed = hash(user.password, DEFAULT_COST).unwrap();
-    let user = NewUser {
+    let hashed = hash_password(user.password.as_str());
+    let user = RegisterUsers {
+        name: user.name.clone(),
+        email: user.email.clone(),
         password: hashed,
-        ..user
+
     };
 
     let (response, _) = external_service::get_user_by_email(&state.db, user.email.clone()).await;
+
     if let Some(user) = response {
         message = "The email is already registered".to_string();
         responses = LoginResponse{
@@ -39,10 +77,10 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
             user: Some(user.clone()),
         };
 
-        let mut current = state.current_user.lock().await;
+        let mut current = user_state.current_user.lock().await;
         *current = Some(user);
 
-        return (StatusCode::FORBIDDEN,axum::Json(responses))
+        return (StatusCode::FORBIDDEN,Json(responses))
     }
 
     let x = service::insert_new_user(&state.db, user.clone()).await;
@@ -58,10 +96,10 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
                 user: Some(user.clone()),
             };
 
-            let mut current = state.current_user.lock().await;
+            let mut current = user_state.current_user.lock().await;
             *current = Some(user);
 
-            (StatusCode::OK,axum::Json(responses))
+            (StatusCode::OK,Json(responses))
         }else{
             message = "User Not Found".to_string();
             responses = LoginResponse{
@@ -69,7 +107,7 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
                 message,
                 user: None,
             };
-            (StatusCode::NOT_FOUND,axum::Json(responses))
+            (StatusCode::NOT_FOUND,Json(responses))
         }
     }else{
         message = "Failed to Register".to_string();
@@ -78,18 +116,18 @@ pub async fn register_user(user: NewUser, state: AppState) -> (StatusCode, axum:
             message,
             user: None,
         };
-        (StatusCode::BAD_REQUEST,axum::Json(responses))
+        (StatusCode::BAD_REQUEST,Json(responses))
     }
 }
 
-pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, axum::Json<LoginResponse>) {
-    let (response, password) = external_service::get_user_by_email(&state.db, login.email).await;
+pub async fn login_user(login: LoginRequest, state: AppState, user_state: UserState) -> (StatusCode, Json<LoginResponse>) {
+    let (response, hashed_password) = external_service::get_user_by_email(&state.db, login.email).await;
     let mut message= "Incorrect Password".to_string() ;
     let mut status= "Failed".to_string();
     let responses;
 
     if let Some(user) = response {
-        if verify(&login.password, &password).unwrap_or(false) {
+        if verify_password(&hashed_password,&login.password) {
             message = "Successfully logged in".to_string();
             status = "Success".to_string();
             responses = LoginResponse{
@@ -98,10 +136,10 @@ pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, ax
                 user: Some(user.clone()),
             };
 
-            let mut current = state.current_user.lock().await;
+            let mut current = user_state.current_user.lock().await;
             *current = Some(user);
 
-            return (StatusCode::OK,axum::Json(responses))
+            return (StatusCode::OK,Json(responses))
         }
         responses = LoginResponse{
             status,
@@ -109,7 +147,7 @@ pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, ax
             user: None,
         };
 
-        (StatusCode::UNAUTHORIZED,axum::Json(responses))
+        (StatusCode::UNAUTHORIZED,Json(responses))
     }else{
         message = "User Not Found".to_string();
         responses = LoginResponse{
@@ -117,40 +155,64 @@ pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, ax
             message,
             user: None,
         };
-        (StatusCode::NOT_FOUND,axum::Json(responses))
+        (StatusCode::NOT_FOUND,Json(responses))
     }
 }
 
-pub async fn login_by_google() -> (StatusCode, axum::Json<String>){
-    (StatusCode::BAD_REQUEST,axum::Json("Failed to login".to_string()))
+pub async fn login_by_google(state: AppState, user_state: UserState) -> (StatusCode, Json<String>){
+    (StatusCode::BAD_REQUEST,Json("Failed to login".to_string()))
 }
 
-pub async fn change_password(id: String, new_password:String, state: AppState)-> (StatusCode, axum::Json<String>){
-    let message;
-    let mut status= "Failed".to_string();
-    let responses;
-    let (response, password) = external_service::get_user_by_id(&state.db, id).await;
+pub async fn change_password(new_password:String, state: AppState, user_state: UserState)-> (StatusCode, Json<String>){
 
+    let (passed, validation_result) = validate_password(&new_password.clone());
+    if !passed {
+        return (StatusCode::FORBIDDEN,Json(validation_result.to_string()));
+    }
 
-    (StatusCode::BAD_REQUEST,axum::Json("Failed to change password".to_string()))
+    let current_user = user_state.current_user.lock().await;
+
+    if let Some(user) = &*current_user {
+
+        let (_, password) = external_service::get_user_by_id(&state.db, user.id.to_string().clone()).await;
+        if verify_password(&password,&new_password){
+            return (StatusCode::FORBIDDEN, Json("Change the character combination".to_string()))
+        }
+
+        let hashed_password = hash_password(new_password.as_str());
+
+        let response = service::change_password(&state.db, user.id.to_string().clone(), hashed_password).await;
+        if response {
+            return (StatusCode::OK, Json("Successfully change password".to_string()))
+        }
+        (StatusCode::BAD_REQUEST, Json("Failed to change password".to_string()))
+    } else {
+        (StatusCode::UNAUTHORIZED, Json("Not logged in".to_string()))
+    }
 }
 
 pub async fn forgot_password(email: String, new_password:String, state: AppState)-> (StatusCode, axum::Json<String>){
     let (response, password) = external_service::get_user_by_email(&state.db, email).await;
+    let email = Message::builder()
+        .from("Your Name <your_email@gmail.com>".parse().unwrap())
+        .to("Recipient <recipient@example.com>".parse().unwrap())
+        .subject("Hello from Rust!")
+        .body(String::from("This is a test email sent using Rust and Lettre!"))
+        .unwrap();
 
+    let creds = Credentials::new("your_email@gmail.com".to_string(), "your_app_password".to_string());
 
-    (StatusCode::BAD_REQUEST,axum::Json("Failed to change password".to_string()))
+    let mailer = SmtpTransport::relay("smtp.gmail.com")
+        .unwrap()
+        .credentials(creds)
+        .build();
+
+    match mailer.send(&email) {
+        Ok(_) => println!("✅ Email sent successfully!"),
+        Err(e) => eprintln!("❌ Failed to send email: {e}"),
+    }
+
+    (StatusCode::BAD_REQUEST,Json("Failed to change password".to_string()))
 }
 
-fn validate_password(password:&String) -> (bool, String){
-    if password.clone().len() < 6 {return (false, "Password too short".to_string())}
-    let has_uppercase = Regex::new(r"[A-Z]").unwrap();
-    let has_number = Regex::new(r"\d").unwrap();
-    let has_special = Regex::new(r"[!@#$%^&*(),.?|:{}<>]").unwrap();
 
-    if !has_uppercase.is_match(password){return (false, "Password must contain uppercase letter".to_string());}
-    else if!has_number.is_match(password){return (true, "Password must contain at least one number".to_string());}
-    else if!has_special.is_match(password) { return (false, "Password must has at least one special character.".to_string()); }
-
-    (true, "Password accepted".to_string())
-}
