@@ -97,6 +97,25 @@ diesel::table! {
 }
 
 diesel::table! {
+    requests (id) {
+        id -> Uuid,
+        #[max_length = 255]
+        description -> Varchar,
+        userid -> Uuid,
+        requesttypeid -> Uuid,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    requesttypes (id) {
+        id -> Uuid,
+        #[max_length = 255]
+        category -> Varchar,
+    }
+}
+
+diesel::table! {
     songs (id) {
         id -> Uuid,
         #[max_length = 255]
@@ -131,9 +150,12 @@ diesel::table! {
         #[max_length = 255]
         password -> Varchar,
         #[max_length = 255]
+        bio -> Varchar,
+        #[max_length = 255]
         image -> Nullable<Varchar>,
         #[max_length = 255]
         role -> Varchar,
+        isverified -> Bool,
         originid -> Nullable<Uuid>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
@@ -168,6 +190,8 @@ diesel::joinable!(replycomments -> comments (commentid));
 diesel::joinable!(replycomments -> users (userid));
 diesel::joinable!(reports -> users (userid));
 diesel::joinable!(reports -> violationtypes (violationtypeid));
+diesel::joinable!(requests -> requesttypes (requesttypeid));
+diesel::joinable!(requests -> users (userid));
 diesel::joinable!(users -> origins (originid));
 diesel::joinable!(usersongs -> songs (songid));
 diesel::joinable!(usersongs -> users (userid));
@@ -183,6 +207,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     posts,
     replycomments,
     reports,
+    requests,
+    requesttypes,
     songs,
     userfollowings,
     users,
