@@ -65,7 +65,7 @@ diesel::table! {
         image -> Varchar,
         #[max_length = 255]
         description -> Varchar,
-        views -> Nullable<Int8>,
+        views -> Int8,
         categoryid -> Uuid,
         userid -> Uuid,
         created_at -> Timestamp,

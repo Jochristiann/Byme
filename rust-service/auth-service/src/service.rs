@@ -2,6 +2,7 @@ use uuid::Uuid;
 use model::state::DbPool;
 use model::users::{NewToken, NewUsers, RegisterUsers, ResetToken};
 use crate::{repository};
+use model::accessible::parse_id;
 
 pub async fn insert_new_user(pool: &DbPool, new_user:RegisterUsers) -> bool{
     let user = NewUsers{
@@ -41,9 +42,3 @@ pub async fn delete_token(pool:&DbPool, token_id:Uuid) -> bool{
     repository::delete_token(pool, token_id).await
 }
 
-fn parse_id (id:String) -> Uuid {
-    Uuid::parse_str(&id).unwrap_or_else(|er| {
-        eprintln!("{}", er);
-        Uuid::nil()
-    })
-}
