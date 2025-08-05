@@ -12,6 +12,6 @@ pub struct Posts{
     pub image: String,
     pub description: String,
     pub views: i32,
-    pub category_id: Uuid,
-    pub user_id: Uuid,
+    pub categoryid: Uuid,
+    pub userid: Uuid,
 }
