@@ -60,7 +60,7 @@ pub struct UserResponse{
     pub image: Option<String>,
     pub role: String,
     pub isverified: bool,
-    pub origin_id: Option<Uuid>,
+    pub origin: Option<Origins>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
