@@ -5,7 +5,7 @@ use argon2::{
     Argon2, PasswordHash,
 };
 use axum::Json;
-use chrono::{Duration, NaiveDateTime, Utc};
+use chrono::{Duration, Utc};
 use lettre::transport::smtp::authentication::Credentials;
 use password_hash::{ PasswordHasher, PasswordVerifier, SaltString};
 use rand_core::OsRng;
