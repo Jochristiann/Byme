@@ -17,7 +17,7 @@ pub async fn register(
     *response.status_mut() = status;
     response
 }
-#[axum::debug_handler]
+
 pub async fn login(
     State(state): State<AuthState>,
     Json(payload): Json<LoginRequest>,
