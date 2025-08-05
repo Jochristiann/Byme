@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use diesel::{QueryId, Queryable};
 use uuid::Uuid;
-use crate::schema::{users, userfollowings};
+use crate::schema::{users, userfollowings, resettokens};
 use crate::master::Origins;
 
 #[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable,QueryId, Clone)]
@@ -66,11 +66,29 @@ pub struct UserResponse{
 }
 
 #[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
-#[diesel(primary_key(user_id, followed_user_id))]
+#[diesel(primary_key(userid, followed_userid))]
 #[diesel(table_name = userfollowings)]
-#[diesel(belongs_to(Users, foreign_key = user_id))]
-#[diesel(belongs_to(Users, foreign_key = followed_user_id))]
+#[diesel(belongs_to(Users, foreign_key = userid))]
+#[diesel(belongs_to(Users, foreign_key = followed_userid))]
 pub struct UserFollowings {
-    pub user_id: Uuid,
-    pub followed_user_id: Uuid,
+    pub userid: Uuid,
+    pub followed_userid: Uuid,
+}
+
+#[derive(Serialize,Deserialize, Queryable, Insertable, Debug,Associations)]
+#[diesel(belongs_to(Users, foreign_key = userid))]
+#[diesel(table_name = resettokens)]
+pub struct ResetToken{
+    pub id:Uuid,
+    pub userid:Uuid,
+    pub newpassword:String,
+    pub created_at:NaiveDateTime,
+}
+
+#[derive(Serialize,Deserialize, Queryable, Insertable, Clone)]
+#[diesel(table_name = resettokens)]
+pub struct NewToken{
+    pub id:Uuid,
+    pub userid:Uuid,
+    pub newpassword:String
 }

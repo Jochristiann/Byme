@@ -1,9 +1,11 @@
+use std::env;
 use axum::http::StatusCode;
 use lettre::{Message, SmtpTransport, Transport};
 use argon2::{
     Argon2, PasswordHash,
 };
 use axum::Json;
+use chrono::{Duration, NaiveDateTime, Utc};
 use lettre::transport::smtp::authentication::Credentials;
 use password_hash::{ PasswordHasher, PasswordVerifier, SaltString};
 use rand_core::OsRng;
@@ -12,7 +14,7 @@ use crate::{service};
 use model::state::{AppState, UserState};
 use regex::Regex;
 use user_service::service as external_service;
-use crate::response::{LoginResponse};
+use crate::response::{LoginResponse, ResetQuery};
 
 fn hash_password(password: &str) -> String {
     let salt = SaltString::generate(&mut OsRng);
@@ -41,6 +43,33 @@ fn validate_password(password:&String) -> (bool, String){
     else if!has_special.is_match(password) { return (false, "Password must has at least one special character.".to_string()); }
 
     (true, "Password accepted".to_string())
+}
+
+fn send_email(recipient_email:String, subject:String, body_message:String) -> () {
+    let name = env::var("NAME").expect("NAME must be set");
+    let cred_email = env::var("EMAIL").expect("EMAIL must be set");
+    let app_password = env::var("EMAIL_APP_PASSWORD").expect("APP_PASSWORD must be set");
+    let froms = format!("{} <{}>", name, cred_email.clone());
+    let tos = format!("Recipient <{}>",  recipient_email.clone());
+
+    let email = Message::builder()
+        .from(froms.parse().unwrap())
+        .to(tos.parse().unwrap())
+        .subject(subject)
+        .body(String::from(body_message))
+        .unwrap();
+
+    let creds = Credentials::new(cred_email, app_password.to_string());
+
+    let mailer = SmtpTransport::relay("smtp.gmail.com")
+        .unwrap()
+        .credentials(creds)
+        .build();
+
+    match mailer.send(&email) {
+        Ok(_) => println!("✅ Email sent successfully!"),
+        Err(e) => eprintln!("❌ Failed to send email: {e}"),
+    }
 }
 
 pub async fn register_user(user: RegisterUsers, state: AppState, user_state: UserState) -> (StatusCode, Json<LoginResponse>) {
@@ -191,28 +220,41 @@ pub async fn change_password(new_password:String, state: AppState, user_state: U
     }
 }
 
-pub async fn forgot_password(email: String, new_password:String, state: AppState)-> (StatusCode, axum::Json<String>){
-    let (response, password) = external_service::get_user_by_email(&state.db, email).await;
-    let email = Message::builder()
-        .from("Your Name <your_email@gmail.com>".parse().unwrap())
-        .to("Recipient <recipient@example.com>".parse().unwrap())
-        .subject("Hello from Rust!")
-        .body(String::from("This is a test email sent using Rust and Lettre!"))
-        .unwrap();
+pub async fn forgot_password(email: String, new_password:String, state: AppState)-> (StatusCode, Json<String>){
+    let (response, _) = external_service::get_user_by_email(&state.db, email.clone()).await;
 
-    let creds = Credentials::new("your_email@gmail.com".to_string(), "your_app_password".to_string());
+    if let Some(user) = response {
+        let hashed_password = hash_password(new_password.as_str());
+        let (responses, token) = service::insert_token(&state.db,user.id, hashed_password).await;
 
-    let mailer = SmtpTransport::relay("smtp.gmail.com")
-        .unwrap()
-        .credentials(creds)
-        .build();
+        if !responses{
+            return (StatusCode::BAD_REQUEST,Json("Failed to send email".to_string()))
+        }
 
-    match mailer.send(&email) {
-        Ok(_) => println!("✅ Email sent successfully!"),
-        Err(e) => eprintln!("❌ Failed to send email: {e}"),
+        let subject = "Forgot Password".to_string();
+        let link = format!("http://127.0.0.1:3000/auth/reset-password?token={}", token);
+        let body_message =
+            format!("Hi {}, welcome back!\nPlease click the following link to reset your password\n{}\n\n\nBest Regards,\nByme",user.name ,link);
+        send_email(email,subject,body_message);
     }
 
-    (StatusCode::BAD_REQUEST,Json("Failed to change password".to_string()))
+    (StatusCode::FORBIDDEN,Json("Email is not found".to_string()))
+}
+
+pub async fn reset_password(token:ResetQuery, state:AppState) -> (StatusCode, Json<String>){
+    let response = service::get_token(&state.db,token.token).await;
+    if let Some(tokens) = response {
+        let now = Utc::now().naive_utc();
+        if !(now - tokens.created_at < Duration::minutes(5)) {
+            return (StatusCode::FORBIDDEN,Json("Token expired".to_string()))
+        }
+
+
+        service::change_password(&state.db,tokens.userid.to_string(),tokens.newpassword.to_string()).await;
+        service::delete_token(&state.db,tokens.id).await;
+        return (StatusCode::OK,Json("Successfully reset password".to_string()))
+    }
+    (StatusCode::BAD_REQUEST,Json("Failed to get token".to_string()))
 }
 
 

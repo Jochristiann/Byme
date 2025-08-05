@@ -116,6 +116,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    resettokens (id) {
+        id -> Uuid,
+        userid -> Uuid,
+        #[max_length = 255]
+        newpassword -> Varchar,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     songs (id) {
         id -> Uuid,
         #[max_length = 255]
@@ -192,6 +202,7 @@ diesel::joinable!(reports -> users (userid));
 diesel::joinable!(reports -> violationtypes (violationtypeid));
 diesel::joinable!(requests -> requesttypes (requesttypeid));
 diesel::joinable!(requests -> users (userid));
+diesel::joinable!(resettokens -> users (userid));
 diesel::joinable!(users -> origins (originid));
 diesel::joinable!(usersongs -> songs (songid));
 diesel::joinable!(usersongs -> users (userid));
@@ -209,6 +220,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     reports,
     requests,
     requesttypes,
+    resettokens,
     songs,
     userfollowings,
     users,
