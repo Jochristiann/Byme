@@ -77,8 +77,8 @@ diesel::table! {
         id -> Uuid,
         #[max_length = 255]
         message -> Varchar,
-        commentid -> Nullable<Uuid>,
-        userid -> Nullable<Uuid>,
+        commentid -> Uuid,
+        userid -> Uuid,
         created_at -> Timestamp,
     }
 }

@@ -5,7 +5,7 @@ use model::posts::{NewPost, Posts};
 use model::schema::posts::dsl::posts as posts_dsl;
 use model::schema::{categories, users};
 use model::schema::users::dsl::users as users_dsl;
-use model::schema::categories::dsl::{categories as categories_dsl};
+use model::schema::categories::dsl::categories as categories_dsl;
 use model::schema::categories::name;
 use model::schema::posts::{categoryid, id, userid};
 use model::state::DbPool;
@@ -51,4 +51,10 @@ pub async fn create_post(pool:&DbPool, post: NewPost) -> bool{
     let conn = &mut pool.get().expect("Failed to get DB connection");
 
     diesel::insert_into(posts_dsl).values(&post).execute(conn).is_ok()
+}
+
+pub async fn delete_post(pool:&DbPool, ids:Uuid) -> bool{
+    let conn = &mut pool.get().expect("Failed to get DB connection");
+
+    diesel::delete(posts_dsl).filter(id.eq(ids)).execute(conn).is_ok()
 }
