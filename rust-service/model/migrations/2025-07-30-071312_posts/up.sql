@@ -1,0 +1,10 @@
+-- Your SQL goes here
+CREATE TABLE Posts(
+    Id UUID PRIMARY KEY ,
+    Image VARCHAR(255) NOT NULL,
+    Description VARCHAR(255) NOT NULL,
+    Views BIGINT NOT NULL DEFAULT (0),
+    CategoryId UUID NOT NULL REFERENCES Categories(Id),
+    UserId UUID NOT NULL REFERENCES Users(Id) ON DELETE CASCADE ,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
