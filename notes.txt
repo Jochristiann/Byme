@@ -1,0 +1,16 @@
+COMMAND TO SOLVE THE ERROR
+-> setx PQ_LIB_DIR "C:\Program Files\PostgreSQL\16\lib"
+
+
+DEPENDENCIES FOR Cargo.toml
+axum = { version = "0.7" }
+diesel = { version = "2.1.0", features = ["postgres", "uuid", "chrono", "r2d2"] }
+dotenvy = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+bcrypt = "0.15"
+tokio = { version = "1.45", features = ["full"] }
+model = { path = "../model" }
+hyper = { version = "1", features = ["server", "http1"] }

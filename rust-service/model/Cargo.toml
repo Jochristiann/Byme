@@ -1,0 +1,17 @@
+[package]
+name = "model"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+diesel = { version = "2.1.0", features = ["postgres", "uuid", "chrono", "r2d2"] }
+serde = { version = "1", features = ["derive"] }
+uuid = { version = "1.17.0", features = ["serde","v4"] }
+chrono = {version = "0.4.41", features = ["serde"]}
+tokio = { version = "1.37", features = ["full"] }
+jsonwebtoken = "9"
+base64 = "0.22.1"
+
+[lib]
+name = "model"
+path = "src/lib.rs"
