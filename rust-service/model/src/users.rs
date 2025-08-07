@@ -1,0 +1,94 @@
+use std::option::Option;
+use chrono::{NaiveDate, NaiveDateTime};
+use serde::{Deserialize, Serialize};
+use diesel::prelude::*;
+use diesel::{QueryId, Queryable};
+use uuid::Uuid;
+use crate::schema::{users, userfollowings, resettokens};
+use crate::master::Origins;
+
+#[derive(Queryable, Serialize, Deserialize, Debug, Identifiable, Associations, Insertable,QueryId, Clone)]
+#[diesel(belongs_to(Origins, foreign_key = id))]
+#[diesel(table_name = users)]
+pub struct Users{
+    pub id: Uuid,
+    pub name: String,
+    pub gender: String,
+    pub dob: Option<NaiveDate>,
+    pub username: String,
+    pub email: String,
+    pub password: String,
+    pub bio: String,
+    pub image: Option<String>,
+    pub role: String,
+    pub isverified: bool,
+    pub originid: Option<Uuid>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+#[derive(Serialize, Deserialize, Clone)]
+pub struct RegisterUsers{
+    pub name: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LoginRequest {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Queryable, Serialize, Deserialize, Debug, Insertable, Clone)]
+#[diesel(table_name = users)]
+pub struct NewUsers{
+    pub id: Uuid,
+    pub name: String,
+    pub username: String,
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Serialize,Deserialize, Clone)]
+pub struct UserResponse{
+    pub id: Uuid,
+    pub name: String,
+    pub gender:String,
+    pub dob: Option<NaiveDate>,
+    pub email: String,
+    pub bio: String,
+    pub image: Option<String>,
+    pub role: String,
+    pub isverified: bool,
+    pub origin: Option<Origins>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
+#[diesel(primary_key(userid, followed_userid))]
+#[diesel(table_name = userfollowings)]
+#[diesel(belongs_to(Users, foreign_key = userid))]
+#[diesel(belongs_to(Users, foreign_key = followed_userid))]
+pub struct UserFollowings {
+    pub userid: Uuid,
+    pub followed_userid: Uuid,
+}
+
+#[derive(Serialize,Deserialize, Queryable, Insertable, Debug,Associations)]
+#[diesel(belongs_to(Users, foreign_key = userid))]
+#[diesel(table_name = resettokens)]
+pub struct ResetToken{
+    pub id:Uuid,
+    pub userid:Uuid,
+    pub newpassword:String,
+    pub created_at:NaiveDateTime,
+}
+
+#[derive(Serialize,Deserialize, Queryable, Insertable, Clone)]
+#[diesel(table_name = resettokens)]
+pub struct NewToken{
+    pub id:Uuid,
+    pub userid:Uuid,
+    pub newpassword:String
+}

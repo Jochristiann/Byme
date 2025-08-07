@@ -1,0 +1,22 @@
+[package]
+name = "auth-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.8.4", features = ["macros"] }
+diesel = { version = "2.1.0", features = ["postgres", "uuid", "chrono", "r2d2"] }
+dotenvy = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+tokio = { version = "1.45", features = ["full"] }
+axum-server = { version = "0.7.2", features = ["tls-rustls"] }
+regex = "1.11.1"
+argon2 = { version = "0.5", features = [] }
+password-hash = { version = "0.5", features = ["rand_core"] }
+rand_core = { version = "0.6", features = ["std", "getrandom"] }
+lettre = "0.11.18"
+model = { path = "../model" }
+user-service = { path = "../user-service" }

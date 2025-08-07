@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "rust-service/auth-service",
+    "rust-service/comment-service",
+    "rust-service/model",
+    "rust-service/post-service",
+    "rust-service/song-service",
+    "rust-service/user-service"]

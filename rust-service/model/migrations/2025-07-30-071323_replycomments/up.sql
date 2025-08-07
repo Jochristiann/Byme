@@ -1,0 +1,8 @@
+-- Your SQL goes here
+CREATE TABLE ReplyComments(
+    Id UUID PRIMARY KEY ,
+    Message VARCHAR(255) NOT NULL,
+    CommentId UUID NOT NULL REFERENCES Comments(Id) ON DELETE CASCADE,
+    UserId UUID NOT NULL REFERENCES Users(Id) ON DELETE CASCADE ,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
