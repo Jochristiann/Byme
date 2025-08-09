@@ -30,22 +30,19 @@ pub async fn login(
 }
 
 pub async fn get_current_user(State(state): State<AuthState>) -> Response {
-    let current = state.user_state.current_user.lock().await;
-    if let Some(user) = &*current {
-        Json(user).into_response()
-    } else {
-        (StatusCode::UNAUTHORIZED, "Not logged in").into_response()
-    }
+    let (status, data) = controller::get_current_user(state).await;
+
+    let mut response = data.into_response();
+    *response.status_mut() = status;
+    response
 }
 
 pub async fn logout(State(state): State<AuthState>) -> Response {
-    let mut current = state.user_state.current_user.lock().await;
-    if current.is_some() {
-        *current = None;
-        (StatusCode::OK, "Successfully logged out").into_response()
-    } else {
-        (StatusCode::UNAUTHORIZED, "Not logged in").into_response()
-    }
+    let (status, data) = controller::logout(state).await;
+
+    let mut response = data.into_response();
+    *response.status_mut() = status;
+    response
 }
 
 
