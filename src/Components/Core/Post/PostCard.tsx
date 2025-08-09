@@ -7,7 +7,6 @@ import {formatLikeNumber} from "@/FrontUtils/Library.ts";
 function PostCard() {
     const navigate = useNavigate();
 
-
     return (
         <div className={"relative size-fit rounded-md overflow-hidden shadow-lg"} onClick={()=>{navigate("/post")}}>
             <img src={test} alt={"Video"} className={"object-cover w-full h-full"} />

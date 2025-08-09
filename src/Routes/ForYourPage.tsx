@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import VideoCard from "@/Components/Core/Video/VideoCard.tsx";
+import FYPCard from "@/Components/Core/Video/FYPCard.tsx";
 import test from "@/assets/Videos/The Fantastic Four First Steps Official Teaser Only in Theaters July 25 - Marvel Entertainment (1080p, h264).mp4";
 import testP from "@/assets/Profile/VanessaKirby.jpg";
 
@@ -16,13 +16,14 @@ function ForYourPage() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                entries.forEach((entry, i) => {
+                entries.forEach((entry) => {
+                    const index = videoRefs.current.indexOf(entry.target as HTMLDivElement);
                     if (entry.isIntersecting) {
-                        setActiveIndex(i);
+                        setActiveIndex(index);
                     }
                 });
             },
-            { threshold: 0.75 }
+            { threshold: 0.75}
         );
 
         videoRefs.current.forEach((el) => el && observer.observe(el));
@@ -40,7 +41,7 @@ function ForYourPage() {
                     className="snap-start h-screen w-full"
                     ref={(el) => (videoRefs.current[idx] = el!)}
                 >
-                    <VideoCard
+                    <FYPCard
                         src={video.src}
                         profileImg={video.profile}
                         isActive={activeIndex === idx}

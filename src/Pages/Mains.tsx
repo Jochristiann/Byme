@@ -1,8 +1,11 @@
 import NavigationBar from "@/Components/Informative/NavigationBar.tsx";
 import Footer from "@/Components/Informative/Footer.tsx";
-import {Outlet} from "react-router-dom";
+import {Outlet, useLocation} from "react-router-dom";
 
 function Mains() {
+    const location = useLocation();
+    const hideFooter = location.pathname === "/for-your-page";
+
     return (
         <div className={"w-screen min-h-screen h-full flex flex-row"}>
             <NavigationBar/>
@@ -10,7 +13,8 @@ function Mains() {
                 <div className={"flex-grow-1"}>
                     <Outlet/>
                 </div>
-                <Footer/>
+
+                {!hideFooter && <Footer />}
             </div>
         </div>
     );
