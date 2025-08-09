@@ -3,11 +3,13 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use crate::master::Categories;
-use crate::schema::{posts};
+use crate::comments::Comments;
+use crate::schema::{posts, postcomments};
 use crate::users::{UserResponse, Users};
 
 #[derive(Queryable, Identifiable, Associations, Debug, Serialize, Deserialize, Insertable, Clone)]
-#[diesel(belongs_to(Users, foreign_key = id))]
+#[diesel(belongs_to(Users, foreign_key = userid))]
+#[diesel(belongs_to(Categories, foreign_key = categoryid))]
 #[diesel(table_name = posts)]
 pub struct Posts{
     pub id: Uuid,
@@ -48,3 +50,11 @@ pub struct PostResponse{
     pub created_at:NaiveDateTime
 }
 
+#[derive(Insertable,Queryable, Selectable, Associations,Serialize, Deserialize, Clone)]
+#[diesel(belongs_to(Comments, foreign_key = commentid))]
+#[diesel(belongs_to(Posts, foreign_key = postid))]
+#[diesel(table_name = postcomments)]
+pub struct PostComments{
+    pub postid:Uuid,
+    pub commentid: Uuid
+}
