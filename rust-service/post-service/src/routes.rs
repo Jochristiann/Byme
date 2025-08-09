@@ -16,6 +16,17 @@ pub async fn create_post(
     response
 }
 
+pub async fn delete_post(
+    State(state): State<AppState>,
+    Json(payload): Json<String>,
+)-> Response {
+    let (status, data) = controller::delete_post(state, payload).await;
+
+    let mut response = data.into_response();
+    *response.status_mut() = status;
+    response
+}
+
 pub async fn get_all_posts_by_user_id(
     State(state): State<AppState>,
     Json(payload): Json<String>,
@@ -55,4 +66,5 @@ pub fn post_routes() -> axum::Router<AppState> {
         .route("/all-by-user-id", axum::routing::get(get_all_posts_by_user_id))
         .route("/all-by-category", axum::routing::get(get_all_posts_by_category))
         .route("/create", axum::routing::post(create_post))
+        .route("/delete", axum::routing::post(delete_post))
 }
