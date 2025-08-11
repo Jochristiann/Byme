@@ -51,7 +51,6 @@ pub struct NewUsers{
 
 #[derive(Serialize,Deserialize, Clone)]
 pub struct UserResponse{
-    pub id: Uuid,
     pub name: String,
     pub gender:String,
     pub dob: Option<NaiveDate>,
@@ -62,7 +61,7 @@ pub struct UserResponse{
     pub isverified: bool,
     pub origin: Option<Origins>,
     pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime
 }
 
 #[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]

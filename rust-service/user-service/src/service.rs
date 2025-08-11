@@ -4,25 +4,25 @@ use model::state::DbPool;
 use model::users::{UserResponse, Users};
 use crate::repository;
 
-pub async fn get_user_by_id(pool: &DbPool, id:String) -> (Option<UserResponse>, String) {
+pub async fn get_user_by_id(pool: &DbPool, id:String) -> (Option<UserResponse>, String, String) {
     let parsed_id = parse_id(id);
     let response = repository::get_user_by_id(pool,parsed_id).await;
     if let Some((user,origin)) = response{
-        let converted_user = convert_user_to_user_res(user.clone(),Some(origin.clone()));
-        return (Option::from(converted_user), user.password)
+        let converted_user = convert_user_to_user_res(user.clone(),origin.clone());
+        return (Option::from(converted_user), user.id.to_string(), user.password)
     }
 
-    (None,"".to_string())
+    (None,"".to_string(),"".to_string())
 }
 
-pub async fn get_user_by_email(pool: &DbPool, email_input:String) -> (Option<UserResponse>, String){
+pub async fn get_user_by_email(pool: &DbPool, email_input:String) -> (Option<UserResponse>, String, String){
     let response = repository::get_user_by_email(pool,email_input).await;
     if let Some((user,origin)) = response{
-        let converted_user = convert_user_to_user_res(user.clone(), Some(origin.clone()));
-        return (Option::from(converted_user), user.password)
+        let converted_user = convert_user_to_user_res(user.clone(), origin.clone());
+        return (Option::from(converted_user),user.id.to_string(), user.password)
     }
 
-    (None,"".to_string())
+    (None,"".to_string(),"".to_string())
 }
 
 pub async fn get_all_user_by_role(pool: &DbPool, role:String) -> Option<Vec<UserResponse>>{
@@ -43,7 +43,6 @@ pub async fn get_all_user_by_role(pool: &DbPool, role:String) -> Option<Vec<User
 pub fn convert_user_to_user_res(user:Users, origins: Option<Origins>) -> UserResponse
 {
     UserResponse{
-        id: user.id,
         name: user.name,
         gender: user.gender,
         dob: user.dob,

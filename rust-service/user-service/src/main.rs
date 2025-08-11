@@ -14,10 +14,7 @@ mod response;
 async fn main() {
     let dotenv_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../model/.env");
     from_path(dotenv_path).expect("Failed to load .env");
-    let db = establish_connection_pool();
-    let state = AppState {
-        db,
-    };
+    let state = establish_connection_pool();
 
     let app = Router::new()
         .nest("/get-user", routes::user_routes())

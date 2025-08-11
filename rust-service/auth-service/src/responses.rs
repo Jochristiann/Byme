@@ -5,7 +5,8 @@ use model::users::UserResponse;
 pub struct LoginResponse{
     pub status: String,
     pub message: String,
-    pub user: Option<UserResponse>
+    pub user: Option<UserResponse>,
+    pub token: Option<String>
 }
 
 #[derive(Serialize,Deserialize)]

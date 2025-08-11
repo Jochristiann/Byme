@@ -1,38 +1,24 @@
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use axum::{ Router};
 use std::net::SocketAddr;
 use std::path::Path;
 use dotenvy::from_path;
-use model::state::{establish_connection_pool, AppState, AuthState, UserState};
+use model::state::{establish_connection_pool};
 
 mod controller;
 mod routes;
 mod repository;
-mod response;
+mod responses;
 mod service;
 
 #[tokio::main]
 async fn main() {
     let dotenv_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../model/.env");
     from_path(dotenv_path).expect("Failed to load .env");
-    let db = establish_connection_pool();
-    let app_state = AppState {
-        db
-    };
-
-    let user_state = UserState{
-        current_user: Arc::new(Mutex::new(None))
-    };
-
-    let auth_state = AuthState{
-        app_state,
-        user_state
-    };
+    let state = establish_connection_pool();
 
     let app = Router::new()
         .nest("/auth", routes::auth_routes())
-        .with_state(auth_state);
+        .with_state(state);
     
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 

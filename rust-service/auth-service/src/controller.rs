@@ -4,19 +4,21 @@ use lettre::{Message, SmtpTransport, Transport};
 use argon2::{
     Argon2, PasswordHash,
 };
-use axum::extract::State;
 use axum::Json;
-use axum::response::{IntoResponse, Response};
 use chrono::{Duration, Utc};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use lettre::transport::smtp::authentication::Credentials;
 use password_hash::{ PasswordHasher, PasswordVerifier, SaltString};
 use rand_core::OsRng;
 use model::users::{LoginRequest, RegisterUsers, UserResponse};
 use crate::{service};
-use model::state::{AppState, AuthState, UserState};
+use model::state::{AppState};
 use regex::Regex;
+use model::accessible;
+use model::accessible::parse_id;
+use model::jwt::Claims;
 use user_service::service as external_service;
-use crate::response::{LoginResponse, ResetQuery};
+use crate::responses::{LoginResponse, ResetQuery};
 
 fn hash_password(password: &str) -> String {
     let salt = SaltString::generate(&mut OsRng);
@@ -36,7 +38,7 @@ fn verify_password(hashed_password: &str, plain_password: &str) -> bool {
 
 fn validate_password(password:&String) -> (bool, String){
     if password.clone().len() < 6 {return (false, "Password too short".to_string())}
-    let has_uppercase = Regex::new(r"[A-Z]").unwrap();
+    let has_uppercase = Regex::new(r"[A-Z]").unwrap(); 
     let has_number = Regex::new(r"\d").unwrap();
     let has_special = Regex::new(r"[!@#$%^&*(),.?|:{}<>]").unwrap();
 
@@ -74,27 +76,21 @@ fn send_email(recipient_email:String, subject:String, body_message:String) -> ()
     }
 }
 
-pub async fn get_current_user(state: AuthState) -> (StatusCode, Json<Option<UserResponse>>) {
-    let current = state.user_state.current_user.lock().await;
-    if let Some(user) = &*current {
-        let converted_user = user.clone();
-        (StatusCode::OK,Json(Some(converted_user)))
+pub async fn get_current_user(state: AppState, token:&str) -> (StatusCode, Json<Option<UserResponse>>) {
+    let claims = match accessible::verify_jwt(token, &state.secret) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json(None)),
+    };
+
+    let (curr_user, _, _) = external_service::get_user_by_id(&state.db, claims.id).await;
+    if let Some(user) = curr_user {
+        (StatusCode::OK,Json(Some(user)))
     } else {
         (StatusCode::UNAUTHORIZED, Json(None))
     }
 }
 
-pub async fn logout(state: AuthState) -> (StatusCode, Json<String>) {
-    let mut current = state.user_state.current_user.lock().await;
-    if current.is_some() {
-        *current = None;
-        (StatusCode::OK, Json("Successfully logged out".to_string()))
-    } else {
-        (StatusCode::UNAUTHORIZED, Json("Not logged in".to_string()))
-    }
-}
-
-pub async fn register_user(user: RegisterUsers, state: AppState, user_state: UserState) -> (StatusCode, Json<LoginResponse>) {
+pub async fn register_user(user: RegisterUsers, state: AppState) -> (StatusCode, Json<LoginResponse>) {
     let message;
     let mut status= "Failed".to_string();
     let responses;
@@ -105,6 +101,7 @@ pub async fn register_user(user: RegisterUsers, state: AppState, user_state: Use
             status : status.clone(),
             message: validation_result,
             user: None,
+            token: None
         };
 
         return (StatusCode::FORBIDDEN,Json(responses))
@@ -118,37 +115,49 @@ pub async fn register_user(user: RegisterUsers, state: AppState, user_state: Use
 
     };
 
-    let (response, _) = external_service::get_user_by_email(&state.db, user.email.clone()).await;
+    let (response,_, _) = external_service::get_user_by_email(&state.db, user.email.clone()).await;
 
-    if let Some(user) = response {
+    if let Some(_) = response {
         message = "The email is already registered".to_string();
         responses = LoginResponse{
             status,
             message,
-            user: Some(user.clone()),
+            user: None,
+            token: None
         };
-
-        let mut current = user_state.current_user.lock().await;
-        *current = Some(user);
 
         return (StatusCode::FORBIDDEN,Json(responses))
     }
 
-    let x = service::insert_new_user(&state.db, user.clone()).await;
+    let (x, id) = service::insert_new_user(&state.db, user.clone()).await;
 
     if x {
-        let (response, _) = external_service::get_user_by_email(&state.db, user.email).await;
+        let (response, _, _) = external_service::get_user_by_email(&state.db, user.email).await;
         if let Some(user) = response {
+            let claims = Claims::with_exp(id, user.role.clone());
+            let token = match encode(
+                &Header::default(),
+                &claims,
+                &EncodingKey::from_secret(state.secret.as_ref()),
+            ) {
+                Ok(t) => t,
+                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json((LoginResponse{
+                    status,
+                    message: "Internal server error (Token is not created)".to_string(),
+                    user: None,
+                    token: None
+                }))),
+            };
+
             message = "Successfully registered".to_string();
             status = "Success".to_string();
+
             responses = LoginResponse{
                 status,
                 message,
                 user: Some(user.clone()),
+                token: Some(token)
             };
-
-            let mut current = user_state.current_user.lock().await;
-            *current = Some(user);
 
             (StatusCode::OK,Json(responses))
         }else{
@@ -157,6 +166,7 @@ pub async fn register_user(user: RegisterUsers, state: AppState, user_state: Use
                 status,
                 message,
                 user: None,
+                token: None
             };
             (StatusCode::NOT_FOUND,Json(responses))
         }
@@ -166,36 +176,52 @@ pub async fn register_user(user: RegisterUsers, state: AppState, user_state: Use
             status,
             message,
             user: None,
+            token: None
         };
         (StatusCode::BAD_REQUEST,Json(responses))
     }
 }
 
-pub async fn login_user(login: LoginRequest, state: AppState, user_state: UserState) -> (StatusCode, Json<LoginResponse>) {
-    let (response, hashed_password) = external_service::get_user_by_email(&state.db, login.email).await;
+pub async fn login_user(login: LoginRequest, state: AppState) -> (StatusCode, Json<LoginResponse>) {
+    let (response, id, hashed_password) = external_service::get_user_by_email(&state.db, login.email).await;
     let mut message= "Incorrect Password".to_string() ;
     let mut status= "Failed".to_string();
     let responses;
 
     if let Some(user) = response {
         if verify_password(&hashed_password,&login.password) {
+
+            let claims = Claims::with_exp(id, user.role.clone());
+            let token = match encode(
+                &Header::default(),
+                &claims,
+                &EncodingKey::from_secret(state.secret.as_ref()),
+            ) {
+                Ok(t) => t,
+                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(LoginResponse{
+                    status,
+                    message: "Internal server error (Token is not created)".to_string(),
+                    user: None,
+                    token:None
+                })),
+            };
+
             message = "Successfully logged in".to_string();
             status = "Success".to_string();
             responses = LoginResponse{
                 status,
                 message,
                 user: Some(user.clone()),
+                token: Some(token)
             };
 
-            let mut current = user_state.current_user.lock().await;
-            *current = Some(user);
-
-            return (StatusCode::OK,Json(responses))
+            return (StatusCode::OK,Json(responses));
         }
         responses = LoginResponse{
             status,
             message,
             user: None,
+            token:None
         };
 
         (StatusCode::UNAUTHORIZED,Json(responses))
@@ -205,34 +231,38 @@ pub async fn login_user(login: LoginRequest, state: AppState, user_state: UserSt
             status,
             message,
             user: None,
+            token: None
         };
         (StatusCode::NOT_FOUND,Json(responses))
     }
 }
 
-pub async fn login_by_google(state: AppState, user_state: UserState) -> (StatusCode, Json<String>){
+pub async fn login_by_google(state: AppState) -> (StatusCode, Json<String>){
     (StatusCode::BAD_REQUEST,Json("Failed to login".to_string()))
 }
 
-pub async fn change_password(new_password:String, state: AppState, user_state: UserState)-> (StatusCode, Json<String>){
+pub async fn change_password(new_password:String, token:&str, state: AppState)-> (StatusCode, Json<String>){
 
     let (passed, validation_result) = validate_password(&new_password.clone());
     if !passed {
         return (StatusCode::FORBIDDEN,Json(validation_result.to_string()));
     }
 
-    let current_user = user_state.current_user.lock().await;
+    let claims = match accessible::verify_jwt(token, &state.secret) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json("".to_string())),
+    };
 
-    if let Some(user) = &*current_user {
+    let (curr_user, id, password) = external_service::get_user_by_id(&state.db, claims.id).await;
 
-        let (_, password) = external_service::get_user_by_id(&state.db, user.id.to_string().clone()).await;
+    if let Some(user) = curr_user {
         if verify_password(&password,&new_password){
             return (StatusCode::FORBIDDEN, Json("Change the character combination".to_string()))
         }
 
         let hashed_password = hash_password(new_password.as_str());
 
-        let response = service::change_password(&state.db, user.id.to_string().clone(), hashed_password).await;
+        let response = service::change_password(&state.db, id.clone(), hashed_password).await;
         if response {
             return (StatusCode::OK, Json("Successfully change password".to_string()))
         }
@@ -243,11 +273,12 @@ pub async fn change_password(new_password:String, state: AppState, user_state: U
 }
 
 pub async fn forgot_password(email: String, new_password:String, state: AppState)-> (StatusCode, Json<String>){
-    let (response, _) = external_service::get_user_by_email(&state.db, email.clone()).await;
+    let (response,id, _) = external_service::get_user_by_email(&state.db, email.clone()).await;
 
     if let Some(user) = response {
         let hashed_password = hash_password(new_password.as_str());
-        let (responses, token) = service::insert_token(&state.db,user.id, hashed_password).await;
+        let user_id = parse_id(id.to_string());
+        let (responses, token) = service::insert_token(&state.db,user_id, hashed_password).await;
 
         if !responses{
             return (StatusCode::BAD_REQUEST,Json("Failed to send email".to_string()))

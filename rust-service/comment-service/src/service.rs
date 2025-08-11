@@ -3,6 +3,7 @@ use model::accessible::parse_id;
 use model::comments::{CommentRequest, Comments, NewComment};
 use model::posts::{PostComments};
 use model::state::DbPool;
+use model::users::Users;
 use crate::repository;
 
 
@@ -16,6 +17,16 @@ pub async fn get_all_comments_by_post_id(pool:&DbPool, post_id:String) -> Option
             comments.push(comment);
         }
         return Some(comments)
+    }
+
+    None
+}
+
+pub async fn get_user_id_by_comment(pool:&DbPool, comment_id:String) -> Option<String> {
+    let parsed_id = parse_id(comment_id);
+    let responses = repository::get_comment_by_comment_id(pool, parsed_id).await;
+    if let Some(response) = responses {
+        return Some(response.id.to_string())
     }
 
     None

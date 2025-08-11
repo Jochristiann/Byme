@@ -1,6 +1,7 @@
 use axum::extract::State;
 use axum::Json;
 use axum::response::{IntoResponse, Response};
+use reqwest::Client;
 use model::posts::PostRequest;
 use model::state::AppState;
 use crate::controller;
@@ -9,7 +10,15 @@ pub async fn create_post(
     State(state): State<AppState>,
     Json(payload): Json<PostRequest>,
 )-> Response {
-    let (status, data) = controller::create_post(state, payload).await;
+    let client = Client::new();
+    let mut req = client.get("http://127.0.0.1:3000/auth/get-user");
+
+    // for (key, value) in headers.iter() {
+    //     req = req.header(key, value);
+    // }
+    //
+
+    let (status, data) = controller::create_post(state, payload, "".to_string()).await;
 
     let mut response = data.into_response();
     *response.status_mut() = status;

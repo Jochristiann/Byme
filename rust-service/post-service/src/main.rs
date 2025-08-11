@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use axum::Router;
 use dotenvy::from_path;
-use model::state::{establish_connection_pool, AppState};
+use model::state::{establish_connection_pool};
 
 mod repository;
 mod service;
@@ -15,10 +15,7 @@ mod controller;
 async fn main() {
     let dotenv_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../model/.env");
     from_path(dotenv_path).expect("Failed to load .env");
-    let db = establish_connection_pool();
-    let state = AppState {
-        db,
-    };
+    let state = establish_connection_pool();
 
     let app = Router::new()
         .nest("/post", routes::post_routes())

@@ -14,6 +14,7 @@ pub async fn insert_user(pool: &DbPool, new_user: &NewUsers) -> bool {
     let result = diesel::insert_into(users)
         .values(new_user)
         .execute(conn);
+    
     result.is_ok()
 }
 

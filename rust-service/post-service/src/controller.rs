@@ -4,8 +4,8 @@ use model::posts::{PostRequest, PostResponse};
 use model::state::AppState;
 use crate::service;
 
-pub async fn create_post(state:AppState, post:PostRequest)  -> (StatusCode, Json<String>){
-    let response = service::create_post(&state.db, post).await;
+pub async fn create_post(state:AppState, post:PostRequest, user_id:String)  -> (StatusCode, Json<String>){
+    let response = service::create_post(&state.db, post, user_id).await;
     if response {
         return (StatusCode::CREATED, Json("Post uploaded".to_string()))
     }

@@ -6,7 +6,7 @@ use crate::response::AllUserResponse;
 use crate::service;
 
 pub async fn by_id(state:AppState, id:String)-> (StatusCode, Json<Option<UserResponse>>){
-    let (response,_)= service::get_user_by_id(&state.db, id.clone()).await;
+    let (response,_,_)= service::get_user_by_id(&state.db, id.clone()).await;
 
     if let Some(user) = response{
         (StatusCode::OK,Json(Some(user)))
@@ -16,7 +16,7 @@ pub async fn by_id(state:AppState, id:String)-> (StatusCode, Json<Option<UserRes
 }
 
 pub async fn by_email(state:AppState,email:String)-> (StatusCode, Json<Option<UserResponse>>){
-    let (response,_)= service::get_user_by_email(&state.db, email.clone()).await;
+    let (response,_,_)= service::get_user_by_email(&state.db, email.clone()).await;
 
     if let Some(user) = response{
         (StatusCode::OK,Json(Some(user)))
