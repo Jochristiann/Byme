@@ -8,7 +8,7 @@ use model::users::{UserResponse, Users};
 use user_service::service::convert_user_to_user_res;
 use crate::repository;
 
-pub async fn create_post(pool:&DbPool, post: PostRequest) -> bool{
+pub async fn create_post(pool:&DbPool, post: PostRequest, user_id: String) -> bool{
     let new_uuid = Uuid::new_v4();
     let mut image_path = "".to_string();
 
@@ -18,7 +18,7 @@ pub async fn create_post(pool:&DbPool, post: PostRequest) -> bool{
     }
  
     let cat_parsed = parse_id(post.category_id);
-    let user_parsed = parse_id(post.user_id);
+    let user_parsed = parse_id(user_id);
 
     let new_post = NewPost{
         id: new_uuid,
@@ -35,7 +35,7 @@ pub async fn create_post(pool:&DbPool, post: PostRequest) -> bool{
 
 pub async fn delete_post(pool:&DbPool, ids:String) -> bool{
     let parsed_id = parse_id(ids);
-    let response = repository::delete_post(pool,parsed_id ).await;
+    let response = repository::delete_post(pool,parsed_id).await;
 
     response
 }

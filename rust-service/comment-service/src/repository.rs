@@ -33,3 +33,11 @@ pub async fn get_comments_by_post_id (pool:&DbPool, post_id:Uuid) -> Option<Vec<
         .load::<(PostComments,Comments)>(conn)
         .ok()
 }
+
+pub async fn get_comment_by_comment_id (pool:&DbPool, comment_id:Uuid) -> Option<Comments> {
+    let conn = &mut pool.get().expect("Failed to get DB connection");
+    comments_dsl
+        .filter(id.eq(comment_id))
+        .first::<Comments>(conn)
+        .ok()
+}

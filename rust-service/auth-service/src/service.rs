@@ -4,7 +4,7 @@ use model::users::{NewToken, NewUsers, RegisterUsers, ResetToken};
 use crate::{repository};
 use model::accessible::parse_id;
 
-pub async fn insert_new_user(pool: &DbPool, new_user:RegisterUsers) -> bool{
+pub async fn insert_new_user(pool: &DbPool, new_user:RegisterUsers) -> (bool, String){
     let user = NewUsers{
         id : Uuid::new_v4(),
         name : new_user.name.clone(),
@@ -12,8 +12,8 @@ pub async fn insert_new_user(pool: &DbPool, new_user:RegisterUsers) -> bool{
         email : new_user.email,
         password : new_user.password,
     };
-    
-    repository::insert_user(pool,&user).await
+
+    (repository::insert_user(pool,&user).await, user.id.to_string())
 }
 
 pub async fn change_password(pool: &DbPool, id:String, new_password:String) -> bool{

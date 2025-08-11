@@ -35,8 +35,7 @@ pub struct NewPost{
 pub struct PostRequest{
     pub image: String,
     pub description: String,
-    pub category_id: String,
-    pub user_id: String,
+    pub category_id: String
 }
 
 #[derive(Serialize, Deserialize, Clone)]

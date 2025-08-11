@@ -7,24 +7,24 @@ use model::schema::origins::dsl::{origins as origin_dsl};
 use model::state::DbPool;
 use model::users::{ Users};
 
-pub async fn get_user_by_email(pool: &DbPool, email_input: String) -> Option<(Users,Origins)> {
+pub async fn get_user_by_email(pool: &DbPool, email_input: String) -> Option<(Users,Option<Origins>)> {
     let conn = &mut pool.get().expect("Failed to get DB connection");
 
     let result = users_dsl
-        .inner_join(origin_dsl.on(users::originid.eq(origins::id.nullable())))
+        .left_join(origin_dsl.on(users::originid.eq(origins::id.nullable())))
         .filter(users::email.eq(email_input))
-        .first::<(Users, Origins)>(conn);
+        .first::<(Users, Option<Origins>)>(conn);
 
     result.ok()
 }
 
-pub async fn get_user_by_id(pool: &DbPool, id_input: Uuid) -> Option<(Users,Origins)> {
-        let conn = &mut pool.get().expect("Failed to get DB connection");
+pub async fn get_user_by_id(pool: &DbPool, id_input: Uuid) -> Option<(Users,Option<Origins>)> {
+    let conn = &mut pool.get().expect("Failed to get DB connection");
 
     let result = users_dsl
-        .inner_join(origin_dsl.on(users::originid.eq(origins::id.nullable())))
+        .left_join(origin_dsl.on(users::originid.eq(origins::id.nullable())))
         .filter(users::id.eq(id_input))
-        .first::<(Users, Origins)>(conn);
+        .first::<(Users, Option<Origins>)>(conn);
 
     result.ok()
 }

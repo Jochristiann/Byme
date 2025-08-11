@@ -5,10 +5,12 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.8.4", features = ["macros"] }
+axum-extra = { version = "0.10.1", features = ["typed-header"] }
+headers = "0.4"
 diesel = { version = "2.1.0", features = ["postgres", "uuid", "chrono", "r2d2"] }
 dotenvy = "0.15"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+jsonwebtoken = "9.3"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.7", features = ["v4", "serde"] }
 tokio = { version = "1.45", features = ["full"] }
@@ -20,3 +22,7 @@ rand_core = { version = "0.6", features = ["std", "getrandom"] }
 lettre = "0.11.18"
 model = { path = "../model" }
 user-service = { path = "../user-service" }
+
+[lib]
+name = "auth_service"
+path = "src/lib.rs"
