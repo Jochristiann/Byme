@@ -4,7 +4,7 @@ import {useState} from "react";
 import {FcGoogle} from "react-icons/fc";
 import {IoLockClosed, IoMail} from "react-icons/io5";
 import {Link, useNavigate} from "react-router-dom";
-import ErrorPopup from "@/Components/Interactive/ErrorPopup.tsx";
+import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
 import {title} from "@/FrontUtils/Library.ts";
 
 function Login() {
@@ -33,6 +33,10 @@ function Login() {
         }
     }
 
+    function toFYP(){
+        navigate("/for-your-page")
+    }
+
     async function loginByGoogle(){
         try{
             navigate("/home")
@@ -43,10 +47,10 @@ function Login() {
     return (
         <div className={"w-screen h-screen bg-primary"}>
             <div className={"h-full flex justify-center items-center"}>
-                <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md  p-10 border-1 border-gray-300"}>
+                <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md  items-center justify-center p-10 border-1 border-gray-300"}>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
                         <h3 className={"text-center text-2xl font-bold"}>Sign In to</h3>
-                        <h3 className={"text-center text-4xl font-bold"}>{title}</h3>
+                        <h3 className={"text-center text-4xl font-bold cursor-pointer"} onClick={toFYP}>{title}</h3>
                     </div>
                     <div className={"flex flex-col gap-2"}>
                         <div className={'relative flex items-center'}>
@@ -60,19 +64,25 @@ function Login() {
                                 placeholder="Email"
                                 required />
                         </div>
-
-                        <div className={'relative flex items-center'}>
-                            <IoLockClosed className={"absolute left-4"}/>
-                            <Input
-                                serial={"auth"}
-                                onChange={(e) => setPassword(e.target.value)}
-                                value={password}
-                                name="password"
-                                type="password"
-                                minLength={6}
-                                placeholder="Password"
-                                required />
+                        <div className={"flex flex-col gap-1"}>
+                            <div className={'relative flex items-center'}>
+                                <IoLockClosed className={"absolute left-4"}/>
+                                <Input
+                                    serial={"auth"}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={password}
+                                    name="password"
+                                    type="password"
+                                    minLength={6}
+                                    placeholder="Password"
+                                    required />
+                            </div>
+                            <div className={"w-full flex flex-row gap-1 text-xs text-center justify-center"}>
+                                <p>Forget your password?</p>
+                                <Link to={"/auth/forget-password"}>Click here</Link>
+                            </div>
                         </div>
+
                     </div>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
                         <Button
@@ -94,7 +104,7 @@ function Login() {
                 </div>
             </div>
             {isError && (
-                <ErrorPopup message={errorMessage} func={popupToggle}/>
+                <NotificationPopup message={errorMessage} func={popupToggle}/>
             )}
         </div>
     );

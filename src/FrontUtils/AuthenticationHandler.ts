@@ -16,3 +16,25 @@ export const loginHandler = async (email:string, password:string) => {
         throw error;
     }
 }
+
+export const changePasswordHandler = async (password:string) => {
+    try{
+        return await apiAuth.post("/change-password",
+            JSON.stringify(password), {
+            headers: { "Content-Type": "application/json"}
+        })
+    }catch(error){
+        throw error;
+    }
+}
+
+export const forgetPasswordHandler = async (email:string) => {
+    try{
+        return await apiAuth.post("/forget-password",
+            JSON.stringify(email),{
+            headers: { "Content-Type": "application/json" }
+        })
+    }catch(error){
+        throw error;
+    }
+}
