@@ -4,7 +4,7 @@ import {Button} from "@/Components/Interactive/Button.tsx";
 import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {FaUser} from "react-icons/fa";
-import ErrorPopup from "@/Components/Interactive/ErrorPopup.tsx";
+import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
 import {registerHandler} from "@/FrontUtils/AuthenticationHandler.ts";
 import {title} from "@/FrontUtils/Library.ts";
 
@@ -20,6 +20,10 @@ function Register() {
 
     function popupToggle(){
         setIsError(!isError)
+    }
+
+    function toFYP(){
+        navigate("/for-your-page")
     }
 
     async function register(){
@@ -50,7 +54,7 @@ function Register() {
                 <div className={"bg-white rounded-4xl flex flex-col items-center justify-center gap-10 shadow-md  p-10 border-1 border-gray-300"}>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
                         <h3 className={"text-center text-2xl font-bold"}>Sign Up to</h3>
-                        <h3 className={"text-center text-4xl font-bold"}>{title}</h3>
+                        <h3 className={"text-center text-4xl font-bold cursor-pointer"} onClick={toFYP}>{title}</h3>
                     </div>
                     <div className={"flex flex-col gap-2"}>
                         <div className={'relative flex items-center'}>
@@ -119,7 +123,7 @@ function Register() {
                 </div>
             </div>
             {isError && (
-                <ErrorPopup message={errorMessage} func={popupToggle}/>
+                <NotificationPopup message={errorMessage} func={popupToggle}/>
             )}
         </div>
     );

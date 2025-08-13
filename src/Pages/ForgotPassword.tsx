@@ -1,15 +1,12 @@
 import {Button} from "@/Components/Interactive/Button.tsx";
-import {IoMail} from "react-icons/io5";
 import {Input} from "@/Components/Interactive/Input.tsx";
+import {IoMail} from "react-icons/io5";
 import {useState} from "react";
-import {changePasswordHandler} from "@/FrontUtils/AuthenticationHandler.ts";
 import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
+import {forgetPasswordHandler} from "@/FrontUtils/AuthenticationHandler.ts";
 
-
-function ChangePassword() {
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-
+function ForgotPassword() {
+    const [email, setEmail] = useState("")
     const [notifMessage, setNotifMessage] = useState("")
     const [isNotif, setIsNotif] = useState<boolean>(false)
     const [type, setType] = useState(1)
@@ -17,17 +14,15 @@ function ChangePassword() {
         setIsNotif(!isNotif)
     }
 
-    async function changePassword() {
-        if(!password || !confirmPassword){
+    async function sendEmail(){
+        if(!email){
             setNotifMessage("Please fill out all fields")
             setIsNotif(true)
             return
         }
 
-        if (password !== confirmPassword){}
-
         try{
-            let response = await changePasswordHandler(password)
+            let response = await forgetPasswordHandler(email)
             console.log(response)
             setType(2)
         }catch(err:any){
@@ -49,27 +44,15 @@ function ChangePassword() {
                             <IoMail className={"absolute left-4"}/>
                             <Input
                                 serial={"auth"}
-                                onChange={(e) => setPassword(e.target.value)}
-                                value={password}
-                                name="NewPassword"
-                                type="password"
-                                placeholder="New Password"
-                                required />
-                        </div>
-
-                        <div className={'relative flex items-center'}>
-                            <IoMail className={"absolute left-4"}/>
-                            <Input
-                                serial={"auth"}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                value={confirmPassword}
-                                name="ConfirmPassword"
-                                type="password"
-                                placeholder="Confirm Password"
+                                onChange={(e) => setEmail(e.target.value)}
+                                value={email}
+                                name="email"
+                                type="email"
+                                placeholder="Email"
                                 required />
                         </div>
                     </div>
-                    <Button onClick={changePassword}>Send to Email</Button>
+                    <Button onClick={sendEmail}>Send to Email</Button>
                 </div>
             </div>
 
@@ -80,4 +63,4 @@ function ChangePassword() {
     );
 }
 
-export default ChangePassword;
+export default ForgotPassword;

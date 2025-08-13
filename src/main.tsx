@@ -11,6 +11,7 @@ import PostDetail from "@/Routes/PostDetail.tsx";
 import ForYourPage from "@/Routes/ForYourPage.tsx";
 import Profile from "@/Routes/Profile.tsx";
 import EditProfile from "@/Routes/EditProfile.tsx";
+import ForgotPassword from "@/Pages/ForgotPassword.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -29,8 +30,11 @@ createRoot(document.getElementById('root')!).render(
                     </Route>
                 </Route>
 
-                <Route path="/auth/login" element={<Login />} />
-                <Route path="/auth/register" element={<Register />} />
+                <Route path={"auth"}>
+                    <Route path="login" element={<Login />} />
+                    <Route path="register" element={<Register />} />
+                    <Route path="forget-password" element={<ForgotPassword />}/>
+                </Route>
             </Routes>
         </Router>
     </React.StrictMode>
