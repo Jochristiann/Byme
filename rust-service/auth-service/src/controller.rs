@@ -4,14 +4,16 @@ use lettre::{Message, SmtpTransport, Transport};
 use argon2::{
     Argon2, PasswordHash,
 };
+use axum::extract::State;
 use axum::Json;
+use axum::response::{IntoResponse, Response};
 use chrono::{Duration, Utc};
 use lettre::transport::smtp::authentication::Credentials;
 use password_hash::{ PasswordHasher, PasswordVerifier, SaltString};
 use rand_core::OsRng;
-use model::users::{LoginRequest, RegisterUsers};
+use model::users::{LoginRequest, RegisterUsers, UserResponse};
 use crate::{service};
-use model::state::{AppState, UserState};
+use model::state::{AppState, AuthState, UserState};
 use regex::Regex;
 use user_service::service as external_service;
 use crate::response::{LoginResponse, ResetQuery};
@@ -69,6 +71,26 @@ fn send_email(recipient_email:String, subject:String, body_message:String) -> ()
     match mailer.send(&email) {
         Ok(_) => println!("✅ Email sent successfully!"),
         Err(e) => eprintln!("❌ Failed to send email: {e}"),
+    }
+}
+
+pub async fn get_current_user(state: AuthState) -> (StatusCode, Json<Option<UserResponse>>) {
+    let current = state.user_state.current_user.lock().await;
+    if let Some(user) = &*current {
+        let converted_user = user.clone();
+        (StatusCode::OK,Json(Some(converted_user)))
+    } else {
+        (StatusCode::UNAUTHORIZED, Json(None))
+    }
+}
+
+pub async fn logout(state: AuthState) -> (StatusCode, Json<String>) {
+    let mut current = state.user_state.current_user.lock().await;
+    if current.is_some() {
+        *current = None;
+        (StatusCode::OK, Json("Successfully logged out".to_string()))
+    } else {
+        (StatusCode::UNAUTHORIZED, Json("Not logged in".to_string()))
     }
 }
 
