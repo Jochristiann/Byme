@@ -44,6 +44,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    postfiles (postid, files) {
+        postid -> Uuid,
+        #[max_length = 255]
+        files -> Varchar,
+    }
+}
+
+diesel::table! {
     postlikes (userid, postid) {
         userid -> Uuid,
         postid -> Uuid,
@@ -53,8 +61,6 @@ diesel::table! {
 diesel::table! {
     posts (id) {
         id -> Uuid,
-        #[max_length = 255]
-        image -> Varchar,
         #[max_length = 255]
         description -> Varchar,
         views -> Int8,
@@ -181,6 +187,7 @@ diesel::joinable!(commentlikes -> users (userid));
 diesel::joinable!(comments -> users (userid));
 diesel::joinable!(postcomments -> comments (commentid));
 diesel::joinable!(postcomments -> posts (postid));
+diesel::joinable!(postfiles -> posts (postid));
 diesel::joinable!(postlikes -> posts (postid));
 diesel::joinable!(postlikes -> users (userid));
 diesel::joinable!(posts -> users (userid));
@@ -201,6 +208,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     comments,
     origins,
     postcomments,
+    postfiles,
     postlikes,
     posts,
     replycomments,

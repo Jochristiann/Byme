@@ -1,21 +1,19 @@
-use axum::extract::State;
+use axum::extract::{State,Multipart};
 use axum::Json;
 use axum::response::{IntoResponse, Response};
 use axum_extra::TypedHeader;
 use headers::Authorization;
 use headers::authorization::Bearer;
-use reqwest::Client;
-use model::posts::PostRequest;
 use model::state::AppState;
 use crate::controller;
 
 pub async fn create_post(
     State(state): State<AppState>,
     TypedHeader(Authorization(bearer)): TypedHeader<Authorization<Bearer>>,
-    Json(payload): Json<PostRequest>,
+    mut multipart: Multipart,
 )-> Response {
     let token = bearer.token();
-    let (status, data) = controller::create_post(state, payload, token).await;
+        let (status, data) = controller::create_post(state, &mut multipart, token).await;
 
     let mut response = data.into_response();
     *response.status_mut() = status;

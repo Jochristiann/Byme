@@ -1,3 +1,4 @@
+use axum::extract::Multipart;
 use axum::http::StatusCode;
 use axum::Json;
 use model::accessible;
@@ -5,11 +6,49 @@ use model::posts::{PostRequest, PostResponse};
 use model::state::AppState;
 use crate::service;
 
-pub async fn create_post(state:AppState, post:PostRequest, token:&str)  -> (StatusCode, Json<String>){
+pub async fn create_post(state:AppState, multipart: &mut Multipart, token:&str)  -> (StatusCode, Json<String>){
     let claims = match accessible::verify_jwt(token, &state.secret) {
         Ok(c) => c,
         Err(_) => return (StatusCode::UNAUTHORIZED, Json("Please login first before create a post".to_string())),
     };
+
+    let mut post = PostRequest {
+        description: String::new(),
+        files: Vec::new(),
+    };
+
+    while let Some(field) = match multipart.next_field().await {
+        Ok(Some(f)) => Some(f),
+        Ok(None) => None,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json("Invalid form data".to_string()),
+            );
+        }
+    } {
+        match field.name().unwrap_or("") {
+            "description" => {
+                if let Ok(desc) = field.text().await {
+                    post.description = desc;
+                }
+            }
+            "files" => {
+                let filename = field.file_name().unwrap_or("upload.bin").to_string();
+                let data = match field.bytes().await {
+                    Ok(bytes) => bytes.to_vec(),
+                    Err(_) => {
+                        return (
+                            StatusCode::BAD_REQUEST,
+                            Json("Failed to read file".to_string()),
+                        );
+                    }
+                };
+                post.files.push((filename, data));
+            }
+            _ => {}
+        }
+    }
 
     let response = service::create_post(&state.db, post, claims.id).await;
     if response {

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-axum = { version = "0.8.4", features = ["macros"] }
+axum = { version = "0.8.4", features = ["macros", "multipart"] }
 tower-http = { version = "0.5", features = ["cors"] }
 axum-extra = { version = "0.10.1", features = ["typed-header"] }
 headers = "0.4"
