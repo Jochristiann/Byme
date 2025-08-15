@@ -1,9 +1,9 @@
 import {apiAuth} from "@/Miscellaneous/api.tsx";
 
 
-export const registerHandler = async (username:string, email:string, password:string) => {
+export const registerHandler = async (name:string, email:string, password:string) => {
     try{
-        return await apiAuth.post("/register", {username, email, password})
+        return await apiAuth.post("/auth/register", {name, email, password})
     }catch(error){
         throw error;
     }
@@ -11,7 +11,7 @@ export const registerHandler = async (username:string, email:string, password:st
 
 export const loginHandler = async (email:string, password:string) => {
     try{
-        return await apiAuth.post("/login", {email, password})
+        return await apiAuth.post("/auth/login", {email, password})
     }catch(error){
         throw error;
     }
@@ -19,7 +19,7 @@ export const loginHandler = async (email:string, password:string) => {
 
 export const changePasswordHandler = async (password:string) => {
     try{
-        return await apiAuth.post("/change-password",
+        return await apiAuth.post("/auth/change-password",
             JSON.stringify(password), {
             headers: { "Content-Type": "application/json"}
         })
@@ -30,7 +30,7 @@ export const changePasswordHandler = async (password:string) => {
 
 export const forgetPasswordHandler = async (email:string) => {
     try{
-        return await apiAuth.post("/forget-password",
+        return await apiAuth.post("/auth/send-email",
             JSON.stringify(email),{
             headers: { "Content-Type": "application/json" }
         })

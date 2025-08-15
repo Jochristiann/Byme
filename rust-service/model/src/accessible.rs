@@ -1,3 +1,4 @@
+use std::time::{SystemTime, UNIX_EPOCH};
 use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey, Algorithm};
 use crate::jwt::Claims;
 use jsonwebtoken::errors::Error;
@@ -8,11 +9,24 @@ pub fn generate_jwt(claims: Claims, secret: &str) -> Result<String, Error> {
 }
 
 pub fn verify_jwt(token: &str, secret: &str) -> Result<Claims, Error> {
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.validate_exp = true;
+
     let data = decode::<Claims>(
         token,
         &DecodingKey::from_secret(secret.as_ref()),
-        &Validation::new(Algorithm::HS256),
+        &validation,
     )?;
+
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as usize;
+
+    if data.claims.exp < now {
+        return Err(Error::from(jsonwebtoken::errors::ErrorKind::ExpiredSignature));
+    }
+
     Ok(data.claims)
 }
 

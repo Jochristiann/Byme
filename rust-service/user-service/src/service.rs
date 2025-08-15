@@ -25,6 +25,16 @@ pub async fn get_user_by_email(pool: &DbPool, email_input:String) -> (Option<Use
     (None,"".to_string(),"".to_string())
 }
 
+pub async fn get_user_by_username(pool: &DbPool, usn:String) -> (Option<UserResponse>, String, String){
+    let response = repository::get_user_by_username(pool,usn).await;
+    if let Some((user,origin)) = response{
+        let converted_user = convert_user_to_user_res(user.clone(), origin.clone());
+        return (Option::from(converted_user),user.id.to_string(), user.password)
+    }
+
+    (None,"".to_string(),"".to_string())
+}
+
 pub async fn get_all_user_by_role(pool: &DbPool, role:String) -> Option<Vec<UserResponse>>{
     let response = repository::get_user_by_role(pool,role).await;
     if let Some(users) = response{
@@ -46,6 +56,7 @@ pub fn convert_user_to_user_res(user:Users, origins: Option<Origins>) -> UserRes
         name: user.name,
         gender: user.gender,
         dob: user.dob,
+        username: user.username,
         email:  user.email,
         bio: user.bio,
         image: user.image,

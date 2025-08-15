@@ -40,3 +40,14 @@ pub async fn get_user_by_role(pool: &DbPool, role_input: String) -> Option<Vec<(
 
     result
 }
+
+pub async fn get_user_by_username(pool: &DbPool, usn: String) -> Option<(Users,Option<Origins>)> {
+    let conn = &mut pool.get().expect("Failed to get DB connection");
+
+    let result = users_dsl
+        .left_join(origin_dsl.on(users::originid.eq(origins::id.nullable())))
+        .filter(users::username.eq(usn))
+        .first::<(Users, Option<Origins>)>(conn);
+
+    result.ok()
+}

@@ -10,11 +10,14 @@ function Home() {
     const navigate = useNavigate();
 
     return (
-        <div className={"min-h-screen w-full h-full flex flex-col"}>
+        <div className={"w-full h-full flex flex-col"}>
             <div className={"flex flex-row justify-between items-center"}>
                 <div className={"px-32 pb-20 flex flex-col gap-10 justify-center items-center md:items-start"}>
                     <div className={"flex flex-col gap-2 justify-center text-center md:text-start"}>
-                        <h3>Welcome to <br/><h1 className={"font-bold"}>{title}</h1></h3>
+                        <div className={"flex flex-col gap-2"}>
+                            <h3>Welcome to</h3>
+                            <h1 className={"font-bold"}>{title}</h1>
+                        </div>
                         <h5><b>{title}</b> is the social media platform to know the world through internet</h5>
                     </div>
                     <Button
@@ -25,7 +28,7 @@ function Home() {
                         <FaArrowRightLong/>
                     </Button>
                 </div>
-                <img src={banner1} alt={"Banner 1"} className={"hidden md:block w-1/2 shadow-xl"}/>
+                <img src={banner1} alt={"Banner 1"} className={"hidden md:block w-1/2 h-full shadow-xl object-cover"}/>
             </div>
 
             <div className={"px-32 py-20 flex flex-col gap-10 justify-center items-center bg-primary text-center"}>

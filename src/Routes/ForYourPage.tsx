@@ -13,6 +13,22 @@ function ForYourPage() {
         { src: test, profile: testP },
     ];
 
+    const tempUser:User = {
+        username: "Jose Christian",
+        name: "",
+        gender: "",
+        email: "",
+        dob: null,
+        bio: "",
+        image: null,
+        role: "",
+        isverified: false,
+        origin: null,
+        created_at: "",
+        updated_at: "",
+        token: null
+    }
+
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -45,6 +61,7 @@ function ForYourPage() {
                         src={video.src}
                         profileImg={video.profile}
                         isActive={activeIndex === idx}
+                        user={tempUser}
                     />
                 </div>
             ))}

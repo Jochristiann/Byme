@@ -4,14 +4,20 @@ import {IoMail} from "react-icons/io5";
 import {useState} from "react";
 import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
 import {forgetPasswordHandler} from "@/FrontUtils/AuthenticationHandler.ts";
+import {useNavigate} from "react-router-dom";
+import {TbArrowBackUp} from "react-icons/tb";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("")
+    const navigate = useNavigate()
     const [notifMessage, setNotifMessage] = useState("")
     const [isNotif, setIsNotif] = useState<boolean>(false)
     const [type, setType] = useState(1)
     function popupToggle(){
         setIsNotif(!isNotif)
+        if(type == 2) {
+            navigate("/auth/login")
+        }
     }
 
     async function sendEmail(){
@@ -23,21 +29,27 @@ function ForgotPassword() {
 
         try{
             let response = await forgetPasswordHandler(email)
-            console.log(response)
+            setNotifMessage(response.data)
             setType(2)
+            setIsNotif(true)
         }catch(err:any){
-            console.log(err)
             const temp = "Something went wrong. Please try again later."
-            const backendMessage = err.data?.message || temp
+            const backendMessage = err.data || temp
             setNotifMessage(backendMessage)
+            setType(1)
             setIsNotif(true)
         }
+    }
+
+    function backTrack(){
+        navigate(-1)
     }
 
     return (
         <div className={"w-screen h-screen bg-primary"}>
             <div className={"h-full flex justify-center items-center"}>
-                <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md items-center justify-center p-10 border-1 border-gray-300"}>
+                <div className={"relative bg-white rounded-4xl flex flex-col gap-10 shadow-md items-center justify-center p-20 border-1 border-gray-300"}>
+                    <TbArrowBackUp onClick={backTrack} size={40} className={"absolute cursor-pointer top-5 left-5"} />
                     <h3 className={"text-center text-2xl font-bold"}>Forget Password</h3>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
                         <div className={'relative flex items-center'}>

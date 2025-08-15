@@ -30,6 +30,23 @@ fn hash_password(password: &str) -> String {
     hashed
 }
 
+fn validate_username(usn: &str) -> (bool, String){
+    if usn.trim().is_empty() {
+        return(false,"Username cannot be empty.".to_string());
+    }
+
+    if usn.contains(' ') {
+        return (false,"Username cannot contain spaces.".to_string());
+    }
+
+    let valid_pattern = Regex::new(r"^[a-zA-Z0-9_]+$").unwrap();
+    if !valid_pattern.is_match(usn) {
+        return (false,"Username can only contain letters, numbers, and underscores.".to_string());
+    }
+
+    (true, "Success".to_string())
+}
+
 fn verify_password(hashed_password: &str, plain_password: &str) -> bool {
     let parsed_hash = PasswordHash::new(&*hashed_password).unwrap();
     let result = Argon2::default().verify_password(plain_password.as_bytes(), &parsed_hash);
@@ -71,8 +88,8 @@ fn send_email(recipient_email:String, subject:String, body_message:String) -> ()
         .build();
 
     match mailer.send(&email) {
-        Ok(_) => println!("✅ Email sent successfully!"),
-        Err(e) => eprintln!("❌ Failed to send email: {e}"),
+        Ok(_) => (),
+        Err(e) => eprintln!("Failed to send email: {e}"),
     }
 }
 
@@ -107,13 +124,17 @@ pub async fn register_user(user: RegisterUsers, state: AppState) -> (StatusCode,
         return (StatusCode::FORBIDDEN,Json(responses))
     }
 
-    let hashed = hash_password(user.password.as_str());
-    let user = RegisterUsers {
-        name: user.name.clone(),
-        email: user.email.clone(),
-        password: hashed,
+    let (passed, validation_result) = validate_username(&user.name);
+    if !passed {
+        responses = LoginResponse{
+            status : status.clone(),
+            message: validation_result,
+            user: None,
+            token: None
+        };
 
-    };
+        return (StatusCode::FORBIDDEN,Json(responses))
+    }
 
     let (response,_, _) = external_service::get_user_by_email(&state.db, user.email.clone()).await;
 
@@ -129,6 +150,14 @@ pub async fn register_user(user: RegisterUsers, state: AppState) -> (StatusCode,
         return (StatusCode::FORBIDDEN,Json(responses))
     }
 
+    let hashed = hash_password(user.password.as_str());
+    let user = RegisterUsers {
+        name: user.name.clone(),
+        email: user.email.clone(),
+        password: hashed,
+
+    };
+
     let (x, id) = service::insert_new_user(&state.db, user.clone()).await;
 
     if x {
@@ -141,12 +170,12 @@ pub async fn register_user(user: RegisterUsers, state: AppState) -> (StatusCode,
                 &EncodingKey::from_secret(state.secret.as_ref()),
             ) {
                 Ok(t) => t,
-                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json((LoginResponse{
+                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(LoginResponse{
                     status,
                     message: "Internal server error (Token is not created)".to_string(),
                     user: None,
                     token: None
-                }))),
+                })),
             };
 
             message = "Successfully registered".to_string();
@@ -255,7 +284,7 @@ pub async fn change_password(new_password:String, token:&str, state: AppState)->
 
     let (curr_user, id, password) = external_service::get_user_by_id(&state.db, claims.id).await;
 
-    if let Some(user) = curr_user {
+    if let Some(_) = curr_user {
         if verify_password(&password,&new_password){
             return (StatusCode::FORBIDDEN, Json("Change the character combination".to_string()))
         }
@@ -272,23 +301,31 @@ pub async fn change_password(new_password:String, token:&str, state: AppState)->
     }
 }
 
-pub async fn forgot_password(email: String, new_password:String, state: AppState)-> (StatusCode, Json<String>){
+pub async fn send_to_forget_password(email: String, state: AppState)-> (StatusCode, Json<String>){
     let (response,id, _) = external_service::get_user_by_email(&state.db, email.clone()).await;
 
     if let Some(user) = response {
-        let hashed_password = hash_password(new_password.as_str());
         let user_id = parse_id(id.to_string());
-        let (responses, token) = service::insert_token(&state.db,user_id, hashed_password).await;
+        let (responses, token) = service::insert_token(&state.db,user_id).await;
 
         if !responses{
             return (StatusCode::BAD_REQUEST,Json("Failed to send email".to_string()))
         }
 
         let subject = "Forgot Password".to_string();
-        let link = format!("http://127.0.0.1:3000/auth/reset-password?token={}", token);
+        let link = format!("http://localhost:1420/auth/change-password?token={}", token);
         let body_message =
-            format!("Hi {}, welcome back!\nPlease click the following link to reset your password\n{}\n\n\nBest Regards,\nByme",user.name ,link);
+            format!("
+            Hello {}\n\n
+            Welcome back to Byme!\n
+            Please click the following link to reset your password. Access this link on your own device. Do not share the link to anyone.\n
+            {}\n\n
+            Our staff would not ask you to give the link.\n\n\n
+            Best Regards,\n
+            Byme",user.name ,link);
         send_email(email,subject,body_message);
+
+        return (StatusCode::OK,Json("Sent! Check your email inbox.".to_string()))
     }
 
     (StatusCode::FORBIDDEN,Json("Email is not found".to_string()))
@@ -301,9 +338,7 @@ pub async fn reset_password(token:ResetQuery, state:AppState) -> (StatusCode, Js
         if !(now - tokens.created_at < Duration::minutes(5)) {
             return (StatusCode::FORBIDDEN,Json("Token expired".to_string()))
         }
-
-
-        service::change_password(&state.db,tokens.userid.to_string(),tokens.newpassword.to_string()).await;
+        service::change_password(&state.db,tokens.userid.to_string(),token.password.to_string()).await;
         service::delete_token(&state.db,tokens.id).await;
         return (StatusCode::OK,Json("Successfully reset password".to_string()))
     }

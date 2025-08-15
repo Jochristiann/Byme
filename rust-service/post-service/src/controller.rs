@@ -1,11 +1,17 @@
 use axum::http::StatusCode;
 use axum::Json;
+use model::accessible;
 use model::posts::{PostRequest, PostResponse};
 use model::state::AppState;
 use crate::service;
 
-pub async fn create_post(state:AppState, post:PostRequest, user_id:String)  -> (StatusCode, Json<String>){
-    let response = service::create_post(&state.db, post, user_id).await;
+pub async fn create_post(state:AppState, post:PostRequest, token:&str)  -> (StatusCode, Json<String>){
+    let claims = match accessible::verify_jwt(token, &state.secret) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json("Please login first before create a post".to_string())),
+    };
+
+    let response = service::create_post(&state.db, post, claims.id).await;
     if response {
         return (StatusCode::CREATED, Json("Post uploaded".to_string()))
     }
@@ -14,7 +20,10 @@ pub async fn create_post(state:AppState, post:PostRequest, user_id:String)  -> (
 
 pub async fn get_post_by_id(state: AppState, post_id: String) -> (StatusCode, Json<Option<PostResponse>>) {
     let response = service::get_post_by_id(&state.db, post_id).await;
-    (StatusCode::OK, Json(response))
+    if let Some((post,_)) = response {
+        return (StatusCode::OK, Json(Some(post)))
+    }
+    (StatusCode::OK, Json(None))
 }
 
 pub async fn get_all_posts_by_user_id(state: AppState, userid: String) -> (StatusCode, Json<Option<Vec<PostResponse>>>) {
@@ -22,12 +31,19 @@ pub async fn get_all_posts_by_user_id(state: AppState, userid: String) -> (Statu
     (StatusCode::OK, Json(response))
 }
 
-pub async fn get_all_posts_by_category(state: AppState, category: String) -> (StatusCode, Json<Option<Vec<PostResponse>>>) {
-    let response = service::get_all_post_by_category(&state.db, category).await;
-    (StatusCode::OK, Json(response))
-}
+pub async fn delete_post(state:AppState, post_id:String, token:&str) -> (StatusCode, Json<String>) {
+    let claims = match accessible::verify_jwt(token, &state.secret) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json("Please login first before create a post".to_string())),
+    };
 
-pub async fn delete_post(state:AppState, post_id:String) -> (StatusCode, Json<String>) { 
+    let post = service::get_post_by_id(&state.db, post_id.clone()).await;
+    if let Some((_, user_id)) = post {
+        if user_id != claims.id {
+            return (StatusCode::UNAUTHORIZED, Json("Unable to delete post".to_string()));
+        }
+    }
+
     let response = service::delete_post(&state.db, post_id).await;
 
     if response {

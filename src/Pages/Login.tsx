@@ -6,9 +6,13 @@ import {IoLockClosed, IoMail} from "react-icons/io5";
 import {Link, useNavigate} from "react-router-dom";
 import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
 import {title} from "@/FrontUtils/Library.ts";
+import {loginHandler} from "../FrontUtils/AuthenticationHandler";
+import {currentUser} from "../FrontUtils/StateManagement";
 
 function Login() {
     const navigate = useNavigate();
+
+    const setUser = currentUser((state) => state.setUser);
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
@@ -26,9 +30,18 @@ function Login() {
         }
 
         try{
+            let response = await loginHandler(email, password)
+
+            setUser({
+                ...response.data.user,
+                token:response.data.token
+            });
+
             navigate("/home")
-        }catch(err){
-            setErrorMessage("Something went wrong. Please try again later.")
+        }catch(err:any){
+            const temp = "Something went wrong. Please try again later."
+            const backendMessage = err.data?.message || temp
+            setErrorMessage(backendMessage)
             setIsError(true)
         }
     }
@@ -39,9 +52,14 @@ function Login() {
 
     async function loginByGoogle(){
         try{
+            let response = await loginHandler(email, password)
+            console.log(response)
             navigate("/home")
-        }catch(err){
-
+        }catch(err:any){
+            const temp = "Something went wrong. Please try again later."
+            const backendMessage = err.data?.message || temp
+            setErrorMessage(backendMessage)
+            setIsError(true)
         }
     }
     return (

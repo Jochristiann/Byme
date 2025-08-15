@@ -21,11 +21,10 @@ pub async fn change_password(pool: &DbPool, id:String, new_password:String) -> b
     repository::change_password(pool, parsed_id, new_password).await
 }
 
-pub async fn insert_token(pool: &DbPool, uid:Uuid, new_password:String) -> (bool, String){
+pub async fn insert_token(pool: &DbPool, uid:Uuid) -> (bool, String){
     let new_token = NewToken{
         id: Uuid::new_v4(),
         userid: uid,
-        newpassword: new_password
     };
 
     let result = repository::insert_token(pool, new_token.clone());
