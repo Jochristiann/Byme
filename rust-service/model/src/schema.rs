@@ -1,14 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    categories (id) {
-        id -> Uuid,
-        #[max_length = 255]
-        name -> Varchar,
-    }
-}
-
-diesel::table! {
     chats (id) {
         id -> Uuid,
         #[max_length = 255]
@@ -66,7 +58,6 @@ diesel::table! {
         #[max_length = 255]
         description -> Varchar,
         views -> Int8,
-        categoryid -> Uuid,
         userid -> Uuid,
         created_at -> Timestamp,
     }
@@ -119,8 +110,6 @@ diesel::table! {
     resettokens (id) {
         id -> Uuid,
         userid -> Uuid,
-        #[max_length = 255]
-        newpassword -> Varchar,
         created_at -> Timestamp,
     }
 }
@@ -194,7 +183,6 @@ diesel::joinable!(postcomments -> comments (commentid));
 diesel::joinable!(postcomments -> posts (postid));
 diesel::joinable!(postlikes -> posts (postid));
 diesel::joinable!(postlikes -> users (userid));
-diesel::joinable!(posts -> categories (categoryid));
 diesel::joinable!(posts -> users (userid));
 diesel::joinable!(replycomments -> comments (commentid));
 diesel::joinable!(replycomments -> users (userid));
@@ -208,7 +196,6 @@ diesel::joinable!(usersongs -> songs (songid));
 diesel::joinable!(usersongs -> users (userid));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    categories,
     chats,
     commentlikes,
     comments,

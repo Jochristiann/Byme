@@ -11,12 +11,12 @@ function NotificationPopup({type = 1, message, func}: {type?:number,message: str
                     {type == 1 ? (
                         <>
                             <MdError size={64} color={"red"}/>
-                            <h3>Error</h3>
+                            <h4>Error</h4>
                         </>
                     ):(
                         <>
                             <FaCircleCheck size={64} color={"green"}/>
-                            <h3>Success</h3>
+                            <h4>Success</h4>
                         </>
                     )}
                 </div>

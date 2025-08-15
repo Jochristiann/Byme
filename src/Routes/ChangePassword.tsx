@@ -2,11 +2,17 @@ import {Button} from "@/Components/Interactive/Button.tsx";
 import {IoMail} from "react-icons/io5";
 import {Input} from "@/Components/Interactive/Input.tsx";
 import {useState} from "react";
-import {changePasswordHandler} from "@/FrontUtils/AuthenticationHandler.ts";
+import {changePasswordHandler, forgetPasswordHandler} from "@/FrontUtils/AuthenticationHandler.ts";
 import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
+import {TbArrowBackUp} from "react-icons/tb";
+import {useNavigate, useSearchParams} from "react-router-dom";
 
 
 function ChangePassword() {
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get("token");
+
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
 
@@ -24,26 +30,41 @@ function ChangePassword() {
             return
         }
 
-        if (password !== confirmPassword){}
+        if (password !== confirmPassword){
+            setNotifMessage("Password is not same.")
+            setIsNotif(true)
+            return
+        }
 
         try{
-            let response = await changePasswordHandler(password)
-            console.log(response)
+            let response;
+            if(token){
+                response = await forgetPasswordHandler(token)
+            }else{
+                response = await changePasswordHandler(password)
+            }
+            setNotifMessage(response.data)
             setType(2)
+            setIsNotif(true)
         }catch(err:any){
-            console.log(err)
             const temp = "Something went wrong. Please try again later."
-            const backendMessage = err.data?.message || temp
+            const backendMessage = err.data || temp
             setNotifMessage(backendMessage)
+            setType(1)
             setIsNotif(true)
         }
+    }
+
+    function backTrack(){
+        navigate(-1)
     }
 
     return (
         <div className={"w-screen h-screen bg-primary"}>
             <div className={"h-full flex justify-center items-center"}>
-                <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md items-center justify-center p-10 border-1 border-gray-300"}>
-                    <h3 className={"text-center text-2xl font-bold"}>Forget Password</h3>
+                <div className={"bg-white rounded-4xl flex flex-col gap-10 shadow-md items-center justify-center p-20 border-1 border-gray-300"}>
+                    <TbArrowBackUp onClick={backTrack} size={40} className={"absolute cursor-pointer top-5 left-5"} />
+                    <h3 className={"text-center text-2xl font-bold"}>Change Password</h3>
                     <div className={"flex flex-col gap-1 justify-center items-center"}>
                         <div className={'relative flex items-center'}>
                             <IoMail className={"absolute left-4"}/>

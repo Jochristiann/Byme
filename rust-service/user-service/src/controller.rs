@@ -15,7 +15,17 @@ pub async fn by_id(state:AppState, id:String)-> (StatusCode, Json<Option<UserRes
     }
 }
 
-pub async fn by_email(state:AppState,email:String)-> (StatusCode, Json<Option<UserResponse>>){
+pub async fn by_email(state:AppState,usn:String)-> (StatusCode, Json<Option<UserResponse>>){
+    let (response,_,_)= service::get_user_by_username(&state.db, usn.clone()).await;
+
+    if let Some(user) = response{
+        (StatusCode::OK,Json(Some(user)))
+    }else {
+        (StatusCode::NOT_FOUND,Json(None))
+    }
+}
+
+pub async fn by_username(state:AppState,email:String)-> (StatusCode, Json<Option<UserResponse>>){
     let (response,_,_)= service::get_user_by_email(&state.db, email.clone()).await;
 
     if let Some(user) = response{
@@ -24,6 +34,7 @@ pub async fn by_email(state:AppState,email:String)-> (StatusCode, Json<Option<Us
         (StatusCode::NOT_FOUND,Json(None))
     }
 }
+
 
 pub async fn get_all_user_by_role (state:AppState, role:String) -> (StatusCode, Json<AllUserResponse>){
 

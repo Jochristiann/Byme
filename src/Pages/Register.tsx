@@ -7,10 +7,12 @@ import {FaUser} from "react-icons/fa";
 import NotificationPopup from "@/Components/Interactive/NotificationPopup.tsx";
 import {registerHandler} from "@/FrontUtils/AuthenticationHandler.ts";
 import {title} from "@/FrontUtils/Library.ts";
+import {currentUser} from "../FrontUtils/StateManagement";
 
 
 function Register() {
     const navigate = useNavigate();
+    const setUser = currentUser((state) => state.setUser);
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -40,10 +42,17 @@ function Register() {
         }
 
         try{
-            await registerHandler(username, email, password)
+            let response = await registerHandler(username, email, password)
+            setUser({
+                ...response.data.user,
+                token:response.data.token
+            });
+
             navigate("/home")
-        }catch(error){
-            setErrorMessage("Something went wrong. Please try again later.")
+        }catch(err:any){
+            const temp = "Something went wrong. Please try again later."
+            const backendMessage = err.data?.message || temp
+            setErrorMessage(backendMessage)
             setIsError(true)
         }
 
@@ -61,6 +70,11 @@ function Register() {
                             <FaUser className={"absolute left-4"}/>
                             <Input
                                 serial={"auth"}
+                                onKeyDown={(e) => {
+                                    if (e.key === " ") {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 onChange={(e) => setUsername(e.target.value)}
                                 value={username}
                                 name="username"

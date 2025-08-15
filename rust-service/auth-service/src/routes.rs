@@ -7,7 +7,7 @@ use headers::authorization::Bearer;
 use model::state::AppState;
 use crate::{controller};
 use model::users::{LoginRequest, RegisterUsers};
-use crate::responses::{ForgotPasswordRequest, ResetQuery};
+use crate::responses::{ResetQuery};
 
 pub async fn register(
     State(state): State<AppState>,
@@ -60,8 +60,8 @@ pub async fn reset_password (State(state): State<AppState>, Json(payload): Json<
     response
 }
 
-pub async fn forgot_password (State(state): State<AppState>, Json(payload): Json<ForgotPasswordRequest>) -> Response {
-    let (status, data) = controller::forgot_password(payload.email,payload.new_password, state).await;
+pub async fn forgot_password (State(state): State<AppState>, Json(payload): Json<String>) -> Response {
+    let (status, data) = controller::send_to_forget_password(payload, state).await;
 
     let mut response = data.into_response();
     *response.status_mut() = status;

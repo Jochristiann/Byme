@@ -54,6 +54,7 @@ pub struct UserResponse{
     pub name: String,
     pub gender:String,
     pub dob: Option<NaiveDate>,
+    pub username: String,
     pub email: String,
     pub bio: String,
     pub image: Option<String>,
@@ -80,7 +81,6 @@ pub struct UserFollowings {
 pub struct ResetToken{
     pub id:Uuid,
     pub userid:Uuid,
-    pub newpassword:String,
     pub created_at:NaiveDateTime,
 }
 
@@ -89,5 +89,4 @@ pub struct ResetToken{
 pub struct NewToken{
     pub id:Uuid,
     pub userid:Uuid,
-    pub newpassword:String
 }
